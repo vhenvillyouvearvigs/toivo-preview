@@ -691,12 +691,24 @@ html.menu-open{overflow:hidden}
 /* 手机档细调（2026-09-24 按真机宽度 360 到 430 逐页核查）：区块留白收紧，两栏表改上下叠，按钮撑满，页脚两栏 */
 @media (max-width:1023px){
   .chain > div{row-gap:var(--space-4)}   /* 说明换到第二行时贴着值，别隔 32 */
+  /* 平板与手机横屏也是触屏：页脚与法务兄弟页链接点击区 44；折成两行的链接上下各留 11.5，不会挤在一起 */
+  .fcol{gap:0}
+  .fcol a{display:flex; align-items:center; min-height:44px; padding-block:calc((44px - var(--lh-small)) / 2); text-wrap:balance}
+  .siblings{row-gap:0}
+  .siblings a{display:inline-flex; align-items:center; min-height:44px}
+  .foot .wordmark{justify-self:start; min-height:44px; align-items:center}
+}
+@media (min-width:768px) and (max-width:1023px){
+  .menu-cta{max-width:704px}   /* 菜单主按钮最宽到 Figma 768 画板的版心，1023 宽时不拉成 959 */
 }
 @media (max-width:767px){
   /* 节奏：首屏标题离页眉 40，区块之间约 96，原先内页沿用桌面 96 与 80，两节之间空出近 200 */
-  .hero{padding-block:var(--space-40) var(--space-64)}
+  .hero{padding-block:var(--space-40) var(--space-48)}
   .hero-in{gap:var(--space-32)}
-  .steps{gap:var(--space-24)}
+  .loop, .what{--pt:var(--space-48); --pb:var(--space-48)}
+  /* 五步：步与步隔 48，步名离自己的卡 16，读得出步名是这张卡的标题 */
+  .steps{gap:var(--space-48)}
+  .step{gap:var(--space-16)}
   .ab-hero, .wwd-hero, .in-hero, .ct-head{--pt:var(--space-40)}
   .ab-hero{--pb:var(--space-48)}
   .ab-why, .ab-facts{--pt:var(--space-48); --pb:var(--space-48)}
@@ -706,6 +718,7 @@ html.menu-open{overflow:hidden}
   .who > div{padding-block:var(--space-16); gap:var(--space-8)}
   .wwd-layers{--pt:var(--space-24); --pb:var(--space-48)}
   .part{padding-block:var(--space-32); gap:var(--space-16)}
+  .part:last-child, .dom:last-child{padding-bottom:0}   /* 末项的内距别叠在区块留白上 */
   .wwd-domains{--pt:var(--space-48); --pb:var(--space-48)}
   .wwd-ladder{--pt:var(--space-48); --pb:var(--space-64)}
   .stages{gap:var(--space-16)}
@@ -716,6 +729,8 @@ html.menu-open{overflow:hidden}
   .lg:first-child{--pt:var(--space-40)}
   /* 首屏两个按钮上下叠、撑满，第二个的字不再缩进 */
   .cta-row{flex-direction:column; align-items:stretch; gap:var(--space-4)}
+  .closing .btn{align-self:stretch}   /* 收尾按钮与首屏按钮一样撑满 */
+  .chain a.v{justify-self:start; padding-block:9px; margin-block:-9px}   /* 链接只占文字宽，点击高 44 */
   /* 样例卡底栏：说明一行，按钮在下方撑满，点击区 45，照 Figma 390 */
   .card-foot{flex-direction:column; align-items:stretch; gap:var(--space-12)}
   .card-foot .btn{padding-block:calc(var(--space-12) - 1px)}
@@ -740,7 +755,9 @@ html.menu-open{overflow:hidden}
   .channel{padding-block:var(--space-24); border-top:1px solid var(--border-subtle)}
   .channel:first-child{border-top:0; padding-top:0}
   /* 阶梯卡的说明 12 太小，升到 14 */
-  .stage{padding:var(--space-12)}
+  /* 阶梯两列卡：用 subgrid 让同一行两张卡的分隔线对齐 */
+  .stages{row-gap:var(--space-16)}
+  .stage{display:grid; grid-row:span 5; grid-template-rows:subgrid; row-gap:0; align-content:start; padding:var(--space-12)}
   .stage .t-caption, .stage .outputs{font-size:var(--font-small); line-height:var(--lh-small)}
   .entry{gap:var(--space-8)}
   .entry .meta{flex-direction:row; gap:var(--space-12)}
@@ -753,20 +770,22 @@ html.menu-open{overflow:hidden}
   .foot .wrap{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-32) var(--space-16)}
   .foot .wordmark, .foot .legal{grid-column:1 / -1}
   .foot-cols{display:contents}
-  .fcol{gap:0}
   .fcol h3{margin-bottom:var(--space-4)}
-  .fcol a{display:flex; align-items:center; min-height:44px}
   .legal p{font-size:var(--font-small); line-height:var(--lh-small)}
 }
-/* 手机横屏：页眉降到 56，按钮收小，首屏标题离页眉 40，第一个按钮落在首屏里 */
-@media (max-height:500px) and (orientation:landscape){
+/* 手机横屏（只限 1023 以下，矮的桌面窗口不受影响）：页眉降到 56，按钮收成 40 高，首屏标题离页眉 40；
+   首屏按钮与卡底栏恢复横排；菜单链接排两列，整张菜单不用滚 */
+@media (max-height:500px) and (orientation:landscape) and (max-width:1023px){
   :root{--nav-h:56px}
-  .nav .actions .btn{padding:calc(var(--space-8) - 1px) calc(var(--space-16) - 1px); font-size:var(--font-small)}
+  .nav .actions .btn{height:40px; padding-block:0; padding-inline:calc(var(--space-16) - 1px); font-size:var(--font-small)}
   .menu-btn, .menu-close{height:40px}
   .menu-btn::after, .menu-close::after{inset:-3px -1px}
   .hero{padding-top:var(--space-40)}
   .ab-hero, .wwd-hero, .in-hero, .ct-head, .lg:first-child{--pt:var(--space-40)}
-  .menu{gap:var(--space-24)}
+  .cta-row, .card-foot{flex-direction:row; align-items:center}
+  .menu{gap:var(--space-16)}
+  .menu-links{display:grid; grid-template-columns:repeat(2, max-content); column-gap:var(--space-48)}
+  .menu-cta{width:auto; align-self:flex-start}
 }
 /* 占位值统一浅灰。放在最后并加一级选择器，压过各表格的值样式 */
 .site .placeholder{color:var(--text-subtle)}
@@ -796,7 +815,7 @@ html.menu-open{overflow:hidden}
   h1, h2, h3, h4, .head-block, .part .title, .artifact-head{break-after:avoid}
   .head-block, .part .title, .legal, .prod, .dom, .entry, .lrow, .chain > div, dl > div{break-inside:avoid}
   .siblings{display:none}   /* 法务页的兄弟页链接在纸上没有用 */
-  .person{break-inside:avoid}
+  .person, .card-foot, .step{break-inside:avoid}
 }
 
 </style>

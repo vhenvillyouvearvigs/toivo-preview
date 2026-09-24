@@ -675,7 +675,10 @@ html.menu-open{overflow:hidden}
   .channels{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (min-width:768px) and (max-width:1023px){
-  .menu-btn, .menu-close{min-width:112px; height:50px; padding:0 var(--space-16); gap:var(--space-12); font-size:var(--font-small)}
+  /* 平板旁边已有描边的 Request a briefing，MENU 去掉框只留图标与字，按钮才站得出来；点击区仍是 50 高 */
+  .menu-btn, .menu-close{min-width:0; height:50px; padding:0 var(--space-8); margin-right:calc(-1 * var(--space-8));
+          gap:var(--space-12); background:none; border-color:transparent; font-size:var(--font-small)}
+  .menu-btn:hover, .menu-close:hover{border-color:transparent; background:var(--bg-soft)}
   .menu-btn::after, .menu-close::after{inset:-1px}
   .menu-btn .ic{width:16px; height:8px}
   .menu-close .ic{width:12px; height:12px}

@@ -531,7 +531,10 @@ html.menu-open{overflow:hidden}
 .closing .t-h2-bold{color:var(--text-on-brand-solid)}
 /* i 点换成品牌橙：用无点 ı 加伪元素画方点，读屏走 aria-label 里的原文 */
 .idot{position:relative}
-.idot::before{content:""; position:absolute; left:50%; top:.02em; width:.194em; height:.194em;
+/* 点的中心对准 Figma 1440 稿：基线上方 .631em，与 Gabarito 自带 i 点的中心（.61em）几乎重合。
+   top 从字体行框顶算起，Gabarito 行框顶在基线上方 .9em，所以 top = .9 - (.631 + .097) = .172em。
+   原先的 .02em 是给 Onest 调的，09-23 标题换成 Gabarito 后点飘到大写字母顶线上方 */
+.idot::before{content:""; position:absolute; left:50%; top:.172em; width:.194em; height:.194em;
               transform:translateX(-50%); background:var(--brand-orange); border-radius:2px;
               -webkit-print-color-adjust:exact; print-color-adjust:exact}   /* 打印默认不印背景，不加这句 i 点会丢 */
 

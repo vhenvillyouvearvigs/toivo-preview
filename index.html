@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@400&family=Gabarito:wght@600;700&family=IBM+Plex+Mono:wght@500&family=Onest:wght@400;500;600;700&display=swap">
 <style>
 [hidden]{display:none !important}
-/* TOIVO 官网 design tokens · 由 Figma Variables 导出 2026-09-23 · 正本在 Figma，别手改这里（重导见 docs/tools/build_site_tokens.py） */
+/* TOIVO 官网 design tokens · 由 Figma Variables 导出 2026-09-25 · 正本在 Figma，别手改这里（重导见 docs/tools/build_site_tokens.py） */
 :root{
   /* 原色 */
   --olive-050: #F5F3ED;
@@ -142,7 +142,7 @@
   --bg-surface: var(--warm-grey-800);
   --bg-inverse: var(--olive-050);
   --bg-brand: var(--olive-500);
-  --bg-soft: var(--olive-900);
+  --bg-soft: var(--warm-grey-900);
   --bg-muted: var(--warm-grey-800);
   --bg-track: var(--warm-grey-700);
   --text-primary: var(--olive-050);
@@ -170,7 +170,7 @@
   --bg-surface: var(--warm-grey-800);
   --bg-inverse: var(--olive-050);
   --bg-brand: var(--olive-500);
-  --bg-soft: var(--olive-900);
+  --bg-soft: var(--warm-grey-900);
   --bg-muted: var(--warm-grey-800);
   --bg-track: var(--warm-grey-700);
   --text-primary: var(--olive-050);
@@ -192,6 +192,34 @@
   --state-warning: var(--status-warning-dark);
   --state-info: var(--status-info-dark);
   --state-success: var(--status-success-dark);
+}
+[data-theme="light"]:not(:root){
+  --bg-canvas: var(--base-white);
+  --bg-surface: var(--olive-050);
+  --bg-inverse: var(--warm-grey-900);
+  --bg-brand: var(--olive-500);
+  --bg-soft: var(--olive-100);
+  --bg-muted: var(--warm-grey-100);
+  --bg-track: var(--warm-grey-200);
+  --text-primary: var(--warm-grey-900);
+  --text-body: var(--warm-grey-800);
+  --text-muted: var(--warm-grey-700);
+  --text-subtle: var(--warm-grey-600);
+  --text-on-brand: var(--warm-grey-900);
+  --text-on-brand-solid: var(--base-white);
+  --text-on-inverse: var(--warm-grey-100);
+  --border-hairline: var(--warm-grey-100);
+  --border-subtle: var(--warm-grey-200);
+  --border-strong: var(--warm-grey-300);
+  --text-on-soft: var(--olive-900);
+  --border-soft: var(--olive-200);
+  --brand-solid: var(--olive-900);
+  --brand-hover: var(--olive-800);
+  --focus-ring: var(--olive-900);
+  --state-error: var(--status-error);
+  --state-warning: var(--status-warning);
+  --state-info: var(--status-info);
+  --state-success: var(--status-success);
 }
 /* Laptop · 1024 到 1439。1440 版式（容器 1200 加两侧 120）装不下时改用 §8.5 的 1280 栅格：边距 64、容器 1152，Figma 的 Home · 1280 画板即此档 */
 @media (max-width: 1439px){ :root{
@@ -392,12 +420,16 @@ p, dd{text-wrap:pretty}   /* 段落末行不落单个词，标题另有 balance 
 .menu-btn .ic{width:14px; height:7px}
 .menu-close .ic{width:10px; height:10px}
 
-/* 满屏菜单，取 Figma Menu · 768 与 Menu · 390。顶行高度与页眉相同，打开时字标不跳位 */
-.menu{position:fixed; inset:0; z-index:200; overflow-y:auto; background:var(--bg-surface);
-      display:flex; flex-direction:column; gap:var(--space-40);
+/* 满屏菜单，取 Figma Menu · 768 与 Menu · 390。顶行高度与页眉相同，打开时字标不跳位。
+   菜单是原生 popover（2026-09-25）：没有脚本也能开关。宽高、外边距、边框与字色抹掉浏览器给 popover 的默认框 */
+.menu{position:fixed; inset:0; z-index:200; overflow-y:auto; background:var(--bg-surface); color:var(--text-body);
+      width:auto; height:auto; max-width:none; max-height:none; margin:0; border:0;
+      display:none; flex-direction:column; gap:var(--space-40);
       padding:env(safe-area-inset-top, 0px) max(var(--margin-x), calc((100% - var(--container-max)) / 2))
               calc(var(--space-48) + env(safe-area-inset-bottom, 0px))}   /* 与页眉同一版心，打开时字标不横跳；上下让开刘海与底部横条 */
-.menu[hidden]{display:none}
+/* 只在打开时显示。两条分开写：旧浏览器不认 :popover-open，第一条整条失效，菜单保持隐藏，脚本改用 is-open 类 */
+.menu:popover-open{display:flex}
+.menu.is-open{display:flex}
 .menu-top{flex:0 0 auto; height:calc(var(--nav-h) - 1px);   /* 页眉底线占 1px */
            display:flex; align-items:center; justify-content:space-between}
 .menu-top .wordmark{min-height:44px; align-items:center}
@@ -532,6 +564,8 @@ html.menu-open{overflow:hidden}
 .closing{background:var(--brand-solid); padding-block:var(--space-64)}
 .closing .wrap{display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-24)}
 .closing .t-h2-bold{color:var(--text-on-brand-solid)}
+/* 收尾块底色与 focus-ring 同为 olive/900，焦点框改用标题的白色。写成 --focus-ring 覆盖会输给 tokens.css 的 [data-theme="light"] */
+.closing :focus-visible{outline-color:var(--text-on-brand-solid)}
 /* i 点换成品牌橙：用无点 ı 加伪元素画方点，读屏走 aria-label 里的原文 */
 .idot{position:relative}
 /* 点的中心对准 Figma 1440 稿：基线上方 .631em，与 Gabarito 自带 i 点的中心（.61em）几乎重合。
@@ -540,6 +574,10 @@ html.menu-open{overflow:hidden}
 .idot::before{content:""; position:absolute; left:50%; top:.172em; width:.194em; height:.194em;
               transform:translateX(-50%); background:var(--brand-orange); border-radius:2px;
               -webkit-print-color-adjust:exact; print-color-adjust:exact}   /* 打印默认不印背景，不加这句 i 点会丢 */
+
+/* 可打印的素档区块（Contact、Legal、About 公司资料与团队、页脚）所有文字不低于 7:1：标签与元信息的 text/subtle 在这里换成 text/muted。
+   浅色 subtle 在底色上只有 5.03:1，muted 为 7.75:1；深色两者同为 warm-grey/300，不受影响（2026-09-25，兑现 Legal 无障碍声明的 7:1） */
+.ct-head, .ct-channels, .lg, .ab-facts, .ab-team, .foot{--text-subtle:var(--text-muted)}
 
 /* ══════════ 页脚 ══════════ */
 .foot{background:var(--bg-surface); padding-block:var(--space-80) var(--space-32)}
@@ -811,8 +849,10 @@ html.menu-open{overflow:hidden}
   .wrap, .nav-in{max-width:none; padding-inline:0}
   .nav{position:static; height:auto; border:0}
   .nav-links, .actions, .menu-btn, .menu, .wash, .skip{display:none}
-  .closing{background:none; border-top:1px solid var(--border-subtle)}
+  .closing{background:none; border-top:1px solid var(--border-subtle); break-inside:avoid}   /* 标题与按钮不拆页 */
   .closing .t-h2-bold{color:var(--text-primary)}
+  .menu:popover-open, .menu.is-open{display:none}   /* 菜单开着时打印也不印出来 */
+  html.menu-open{overflow:visible}
   .btn-primary{background:none; color:var(--text-primary); border-color:currentColor}
   body{background:#fff}
   .evidence{background:#fff; min-height:0; display:block}
@@ -841,16 +881,16 @@ html.menu-open{overflow:hidden}
       <a href="#about" data-page="about">About</a>
       <a href="#contact" data-page="contact">Contact</a>
     </nav>
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu"><svg class="ic" viewBox="0 0 16 8" aria-hidden="true" focusable="false"><path d="M0 .75h16M0 7.25h16" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>MENU</button>
+    <button class="menu-btn" type="button" popovertarget="menu" popovertargetaction="show" aria-controls="menu"><svg class="ic" viewBox="0 0 16 8" aria-hidden="true" focusable="false"><path d="M0 .75h16M0 7.25h16" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>MENU</button>
     <div class="actions">
       <span class="lang" role="group" aria-label="Language"><span class="opt on" aria-current="true">EN</span><span aria-hidden="true">/</span><span class="opt zh" lang="zh-Hant">繁中</span></span>
       <a class="btn btn-secondary" href="#contact">Request a briefing</a>
     </div>
   </div>
-  <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" hidden>
+  <div class="menu" id="menu" popover role="dialog" aria-label="Menu">
     <div class="menu-top">
       <a class="wordmark" href="#index" aria-label="TOIVO home"><svg viewBox="0 0 108 35.2272" width="108" height="35.2272" aria-hidden="true" focusable="false"><path fill="currentColor" d="M7.33868 0C8.89575 0 10.389 0.618543 11.4901 1.71956C12.5911 2.82057 13.2096 4.31387 13.2096 5.87094V24.9515C13.2096 26.1193 13.6736 27.2393 14.4993 28.065C15.325 28.8908 16.4451 29.3547 17.6129 29.3547H20.5483L19.0805 35.2256H17.6129C14.888 35.2256 12.2747 34.1432 10.3479 32.2164C8.42113 30.2896 7.33868 27.6763 7.33868 24.9515V13.2096H0V7.33868H7.33868V0Z"/><path fill="currentColor" d="M12.8418 7.33868H19.8135C20.0082 7.33868 20.1948 7.416 20.3325 7.55363C20.4701 7.69126 20.5474 7.87792 20.5474 8.07255V12.4758C20.5474 12.6704 20.4701 12.8571 20.3325 12.9947C20.1948 13.1323 20.0082 13.2096 19.8135 13.2096H12.8418V7.33868Z"/><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M21.2813 22.4239C21.281 24.1051 21.612 25.77 22.2553 27.3234C22.8985 28.8767 23.8415 30.2882 25.0303 31.4771C26.219 32.666 27.6304 33.6091 29.1837 34.2526C30.7369 34.896 32.4018 35.2272 34.083 35.2272C35.7643 35.2272 37.4291 34.896 38.9824 34.2526C40.5357 33.6091 41.947 32.666 43.1358 31.4771C44.3246 30.2882 45.2675 28.8767 45.9108 27.3234C46.554 25.77 46.885 24.1051 46.8848 22.4239C46.885 20.7426 46.554 19.0777 45.9108 17.5244C45.2675 15.971 44.3246 14.5596 43.1358 13.3706C41.947 12.1817 40.5357 11.2386 38.9824 10.5952C37.4291 9.95172 35.7643 9.62054 34.083 9.62054C32.4018 9.62054 30.7369 9.95172 29.1837 10.5952C27.6304 11.2386 26.219 12.1817 25.0303 13.3706C23.8415 14.5596 22.8985 15.971 22.2553 17.5244C21.612 19.0777 21.281 20.7426 21.2813 22.4239ZM27.1522 22.4239C27.152 21.5136 27.3312 20.6122 27.6794 19.7712C28.0277 18.9302 28.5382 18.166 29.1818 17.5223C29.8254 16.8786 30.5895 16.368 31.4305 16.0196C32.2714 15.6712 33.1728 15.4919 34.083 15.4919C34.9933 15.4919 35.8947 15.6712 36.7356 16.0196C37.5766 16.368 38.3407 16.8786 38.9843 17.5223C39.6279 18.166 40.1384 18.9302 40.4866 19.7712C40.8349 20.6122 41.014 21.5136 41.0139 22.4239C41.014 23.3341 40.8349 24.2355 40.4866 25.0765C40.1384 25.9175 39.6279 26.6817 38.9843 27.3254C38.3407 27.9691 37.5766 28.4798 36.7356 28.8281C35.8947 29.1765 34.9933 29.3558 34.083 29.3558C33.1728 29.3558 32.2714 29.1765 31.4305 28.8281C30.5895 28.4798 29.8254 27.9691 29.1818 27.3254C28.5382 26.6817 28.0277 25.9175 27.6794 25.0765C27.3312 24.2355 27.152 23.3341 27.1522 22.4239Z"/><path fill="currentColor" d="M54.2255 9.98901H51.29C50.4794 9.98901 49.8223 10.6461 49.8223 11.4567V33.391C49.8223 34.2016 50.4794 34.8587 51.29 34.8587H54.2255C55.0361 34.8587 55.6932 34.2016 55.6932 33.391V11.4567C55.6932 10.6461 55.0361 9.98901 54.2255 9.98901Z"/><path fill="currentColor" d="M67.2088 34.3955L57.9248 10.9935C57.8806 10.8822 57.8644 10.7618 57.8774 10.6427C57.8905 10.5237 57.9325 10.4097 57.9998 10.3106C58.0671 10.2115 58.1576 10.1304 58.2634 10.0744C58.3692 10.0183 58.4872 9.98901 58.6069 9.98901H63.344C63.491 9.98901 63.6346 10.0332 63.7563 10.1158C63.8779 10.1984 63.9719 10.3156 64.0261 10.4523L70.328 26.3373L76.63 10.4523C76.6842 10.3156 76.7782 10.1984 76.8998 10.1158C77.0215 10.0332 77.1651 9.98901 77.3121 9.98901H82.0492C82.1689 9.98901 82.2869 10.0183 82.3927 10.0744C82.4985 10.1304 82.589 10.2115 82.6563 10.3106C82.7236 10.4097 82.7656 10.5237 82.7787 10.6427C82.7917 10.7618 82.7755 10.8822 82.7313 10.9935L73.4473 34.3955C73.3931 34.5321 73.2991 34.6494 73.1774 34.732C73.0558 34.8146 72.9122 34.8587 72.7652 34.8587H67.8909C67.7439 34.8587 67.6003 34.8146 67.4787 34.732C67.357 34.6494 67.263 34.5321 67.2088 34.3955Z"/><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M82.3965 22.4239C82.3963 24.1051 82.7273 25.77 83.3705 27.3234C84.0138 28.8767 84.9567 30.2882 86.1455 31.4771C87.3343 32.666 88.7456 33.6091 90.2989 34.2526C91.8522 34.896 93.517 35.2272 95.1983 35.2272C96.8796 35.2272 98.5444 34.896 100.098 34.2526C101.651 33.6091 103.062 32.666 104.251 31.4771C105.44 30.2882 106.383 28.8767 107.026 27.3234C107.669 25.77 108 24.1051 108 22.4239C108 20.7426 107.669 19.0777 107.026 17.5244C106.383 15.971 105.44 14.5596 104.251 13.3706C103.062 12.1817 101.651 11.2386 100.098 10.5952C98.5444 9.95172 96.8796 9.62054 95.1983 9.62054C93.517 9.62054 91.8522 9.95172 90.2989 10.5952C88.7456 11.2386 87.3343 12.1817 86.1455 13.3706C84.9567 14.5596 84.0138 15.971 83.3705 17.5244C82.7273 19.0777 82.3963 20.7426 82.3965 22.4239ZM88.2674 22.4239C88.2673 21.5136 88.4464 20.6122 88.7947 19.7712C89.1429 18.9302 89.6534 18.166 90.297 17.5223C90.9406 16.8786 91.7047 16.368 92.5457 16.0196C93.3867 15.6712 94.288 15.4919 95.1983 15.4919C96.1085 15.4919 97.0099 15.6712 97.8509 16.0196C98.6918 16.368 99.4559 16.8786 100.1 17.5223C100.743 18.166 101.254 18.9302 101.602 19.7712C101.95 20.6122 102.129 21.5136 102.129 22.4239C102.129 23.3341 101.95 24.2355 101.602 25.0765C101.254 25.9175 100.743 26.6817 100.1 27.3254C99.4559 27.9691 98.6918 28.4798 97.8509 28.8281C97.0099 29.1765 96.1085 29.3558 95.1983 29.3558C94.288 29.3558 93.3867 29.1765 92.5457 28.8281C91.7047 28.4798 90.9406 27.9691 90.297 27.3254C89.6534 26.6817 89.1429 25.9175 88.7947 25.0765C88.4464 24.2355 88.2673 23.3341 88.2674 22.4239Z"/><path class="dot" fill="#EF6905" d="M54.2255 0.489624H51.29C50.4794 0.489624 49.8223 1.14675 49.8223 1.95736V4.89283C49.8223 5.70344 50.4794 6.36056 51.29 6.36056H54.2255C55.0361 6.36056 55.6932 5.70344 55.6932 4.89283V1.95736C55.6932 1.14675 55.0361 0.489624 54.2255 0.489624Z"/></svg></a>
-      <button class="menu-close" type="button"><svg class="ic" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M1 1l10 10M11 1L1 11" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>CLOSE</button>
+      <button class="menu-close" type="button" popovertarget="menu" popovertargetaction="hide" autofocus><svg class="ic" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M1 1l10 10M11 1L1 11" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>CLOSE</button>
     </div>
     <nav class="menu-links" aria-label="Primary">
         <a href="#what-we-do" data-page="what-we-do">How it works</a>
@@ -1097,7 +1137,7 @@ html.menu-open{overflow:hidden}
   </section>
 
   <!-- ══ 收尾 ══ -->
-  <section class="closing" id="closing">
+  <section class="closing" id="closing" data-theme="light">
     <div class="wrap">
       <h2 class="t-h2-bold" aria-label="Bring a real challenge."><span aria-hidden="true">Br<span class="idot">ı</span>ng a real challenge.</span></h2>
       <a class="btn btn-secondary" href="#contact">Request a briefing</a>
@@ -1523,7 +1563,7 @@ html.menu-open{overflow:hidden}
       </div>
       <div class="prose">
         <h2 class="t-label">2. Already decided</h2>
-        <p class="t-body">Body text meets 4.5:1 and the printable pages meet 7:1. The only motion is a slow drift of background colour on the home page as you scroll. It stops under reduced-motion settings, and no information depends on it. Nothing on the site needs a mouse.</p>
+        <p class="t-body">Body text meets 4.5:1 across the site. The printable content (contact details, legal text, company facts, team and footer) meets 7:1 in the light theme and in print. The only motion is a slow drift of background colour on the home page as you scroll. It stops under reduced-motion settings, and no information depends on it. Nothing on the site needs a mouse.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">3. Not yet verified</h2>
@@ -1643,33 +1683,55 @@ html.menu-open{overflow:hidden}
     };
   }
 
-  /* ── 窄屏菜单。1023 以下页眉收成 字标、MENU、按钮，MENU 打开满屏菜单 ── */
+  /* ── 窄屏菜单。1023 以下页眉收成 字标、MENU、按钮，MENU 打开满屏菜单。
+        菜单是原生 popover，MENU 与 CLOSE 带 popovertarget，没有脚本也能开关，Esc 也能关（2026-09-25）。
+        脚本只做增强：模态（背后 inert）、焦点、锁滚动、点链接收起、拉宽收起；不认 popover 的旧浏览器改用 is-open 类 ── */
   var menu = document.getElementById('menu');
   var menuBtn = document.querySelector('.menu-btn');
   if (menu && menuBtn) {
     var closeBtn = menu.querySelector('.menu-close');
-    /* 菜单是模态：打开时把背后的页眉、正文和跳转链接设为 inert，Tab 不会落到被遮住的元素上 */
+    var native = typeof menu.showPopover === 'function';
+    /* 菜单是模态：打开时把背后的页眉、正文和跳转链接设为 inert，Tab 不会落到被遮住的元素上。
+       模态靠脚本兑现，所以 aria-modal 与 aria-expanded 也由脚本标上 */
     var behind = [document.querySelector('.nav-in'), site, document.querySelector('.skip')];
     var setInert = function(on){ behind.forEach(function(el){ if (el) el.inert = on; }); };
-    var openMenu = function(){
-      menu.hidden = false; menuBtn.setAttribute('aria-expanded', 'true');
+    var isOpen = function(){ return native ? menu.matches(':popover-open') : menu.classList.contains('is-open'); };
+    var restoreFocus = true;
+    menu.setAttribute('aria-modal', 'true');
+    menuBtn.setAttribute('aria-expanded', 'false');
+    var opened = function(){
+      menuBtn.setAttribute('aria-expanded', 'true');
       document.documentElement.classList.add('menu-open');
       setInert(true);
       if (closeBtn) closeBtn.focus();
     };
-    var closeMenu = function(restore){
-      if (menu.hidden) return;
-      var focusInside = menu.contains(document.activeElement);
-      menu.hidden = true; menuBtn.setAttribute('aria-expanded', 'false');
+    var closed = function(){
+      menuBtn.setAttribute('aria-expanded', 'false');
       document.documentElement.classList.remove('menu-open');
       setInert(false);                 /* 先解除 inert，焦点才能回到 MENU */
-      if (restore) menuBtn.focus();
+      if (restoreFocus) menuBtn.focus();
+      restoreFocus = true;
+    };
+    /* restore 为假时焦点交给调用方：点链接后由单文件路由放到新页标题。返回收起前焦点是否在菜单里 */
+    var closeMenu = function(restore){
+      if (!isOpen()) return false;
+      var focusInside = menu.contains(document.activeElement);
+      restoreFocus = !!restore;
+      /* 原生 popover 的 toggle 事件晚一拍才到，这里先解除 inert，调用方紧接着放焦点（新页标题、字标）才放得进去 */
+      setInert(false);
+      if (native) menu.hidePopover();
+      else { menu.classList.remove('is-open'); closed(); }
       return focusInside;
     };
-    menuBtn.addEventListener('click', openMenu);
-    if (closeBtn) closeBtn.addEventListener('click', function(){ closeMenu(true); });
+    if (native) {
+      /* 开关由 popovertarget 触发，这里只接 toggle 事件补上增强 */
+      menu.addEventListener('toggle', function(e){ if (e.newState === 'open') opened(); else closed(); });
+    } else {
+      menuBtn.addEventListener('click', function(){ if (!isOpen()) { menu.classList.add('is-open'); opened(); } });
+      if (closeBtn) closeBtn.addEventListener('click', function(){ closeMenu(true); });
+      document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeMenu(true); });
+    }
     menu.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('a')) closeMenu(false); });
-    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeMenu(true); });
     /* 拉宽到桌面档时自动收起。条件与 CSS 的 max-width:1023px 完全一致，焦点若在菜单里就交给字标 */
     var narrow = window.matchMedia && window.matchMedia('(max-width: 1023px)');
     if (narrow && narrow.addEventListener) narrow.addEventListener('change', function(m){

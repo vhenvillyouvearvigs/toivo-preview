@@ -268,32 +268,30 @@
 /* 晕染带 alpha 的值 Figma 变量表达不了，在这里按主题各给一套。
    规则与 tokens.css 相同：裸 :root 是浅色，系统深色走 prefers-color-scheme 且被显式 light 覆盖，显式 dark 再赢一次。 */
 :root{
-  /* 浅色晕染取 Figma wash 的色相：olive/900 低透明度（Figma 为 7% 到 3% 到 0），2026-09-23 由偏黄的 olive 300、400 改来 */
-  --wash-1: rgba(63,83,19,.08);  --wash-1b: rgba(63,83,19,.035);
-  --wash-2: rgba(63,83,19,.07);  --wash-2b: rgba(63,83,19,.03);
+  /* 浅色晕染取 Figma wash 的色相：olive/900 低透明度（Figma 为 6.5% 到 3% 到 0，b3、b5 为 6% 到 2.5%），2026-09-23 由偏黄的 olive 300、400 改来。
+     2026-09-25 峰值收到 6.5%：text/subtle 落在色团中心时，8% 为 4.45:1，7% 为 4.53:1（余量太薄），6.5% 为 4.56:1 */
+  --wash-1: rgba(63,83,19,.065); --wash-1b: rgba(63,83,19,.03);
+  --wash-2: rgba(63,83,19,.065); --wash-2b: rgba(63,83,19,.03);
   --wash-3: rgba(63,83,19,.06);  --wash-3b: rgba(63,83,19,.025);
-  --wash-stamp: rgba(63,83,19,.06); --wash-stamp-b: rgba(63,83,19,.025);
   --brand-orange: #EF6905;   /* 字标 i 点与收尾标题的橙点。Figma 里是未绑变量的原色 */
 }
 @media screen and (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   color-scheme:dark;   /* 滚动条与表单控件跟着变深 */
-  --wash-1: rgba(159,171,74,.22);  --wash-1b: rgba(159,171,74,.10);
+  --wash-1: rgba(159,171,74,.20);  --wash-1b: rgba(159,171,74,.09);   /* .22 时 text/muted 落在色团中心只有 4.47:1 */
   --wash-2: rgba(127,139,46,.20);  --wash-2b: rgba(127,139,46,.08);
   --wash-3: rgba(95,108,31,.26);   --wash-3b: rgba(95,108,31,.10);
-  --wash-stamp: rgba(178,189,76,.18); --wash-stamp-b: rgba(178,189,76,.07);
 } }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --wash-1: rgba(159,171,74,.22);  --wash-1b: rgba(159,171,74,.10);
+  --wash-1: rgba(159,171,74,.20);  --wash-1b: rgba(159,171,74,.09);   /* .22 时 text/muted 落在色团中心只有 4.47:1 */
   --wash-2: rgba(127,139,46,.20);  --wash-2b: rgba(127,139,46,.08);
   --wash-3: rgba(95,108,31,.26);   --wash-3b: rgba(95,108,31,.10);
-  --wash-stamp: rgba(178,189,76,.18); --wash-stamp-b: rgba(178,189,76,.07);
 }
 
 /* ══════════ 页面基座 ══════════ */
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%; text-size-adjust:100%}   /* iOS 横屏时不自动放大正文 */
-html{scroll-behavior:smooth; scrollbar-gutter:stable}   /* 常驻滚动条的系统上，打开菜单隐藏滚动条时版心不横移 */
+html{scrollbar-gutter:stable}   /* 常驻滚动条的系统上，打开菜单隐藏滚动条时版心不横移。scroll-behavior 保持默认 auto，页内跳转一帧到位（2026-09-25） */
 html,body{overflow-x:clip}
 body{margin:0; background:var(--bg-surface); color:var(--text-body);
      font:400 var(--font-body)/var(--lh-body) var(--font-stack);
@@ -342,10 +340,8 @@ p, dd{text-wrap:pretty}   /* 段落末行不落单个词，标题另有 balance 
 .btn{display:inline-flex; align-items:center; justify-content:center; gap:var(--space-8);
      text-decoration:none; border-radius:var(--radius-card); border:1px solid transparent; cursor:pointer;
      font:500 var(--font-body)/var(--lh-body) var(--font-stack);
-     padding:calc(var(--space-16) - 1px) calc(var(--space-24) - 1px); white-space:nowrap;   /* 边框 1px 算进内距，尺寸与 Figma 一致 */
-     transition:background-color var(--motion-fast-01) var(--ease-standard),
-                border-color var(--motion-fast-01) var(--ease-standard),
-                color var(--motion-fast-01) var(--ease-standard)}
+     padding:calc(var(--space-16) - 1px) calc(var(--space-24) - 1px); white-space:nowrap}   /* 边框 1px 算进内距，尺寸与 Figma 一致。
+     悬停时颜色即时切换。全站的 transition 与 animation 都已删去，会动的只有首页晕染，由 site.js 随滚动写位移（2026-09-25） */
 .btn-primary{background:var(--brand-solid); color:var(--text-on-brand-solid)}
 .btn-primary:hover{background:var(--brand-hover)}
 .btn-secondary{background:var(--bg-canvas); color:var(--text-body); border-color:var(--border-strong);
@@ -425,18 +421,25 @@ html.menu-open{overflow:hidden}
       mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 260px),transparent 100%)}
 .blob{position:absolute; width:900px; height:900px; border-radius:50%; will-change:transform;
       background:radial-gradient(circle, var(--wash-1) 0%, var(--wash-1b) 38%, transparent 68%)}
+/* 晕染层从页眉下沿量到 Evidence 色带顶。色团纵向按这段高度的百分比定，b4 贴着底部定，任何宽度都铺到 What we do 段末，
+   再由底部 260px 遮罩淡出。原先写死 -320、520、1500px，是 09-06 对照页的数值；09-17 The Loop 平铺后首页长了一屏半，
+   三团在 The Loop 末尾就全部离场。晕染层高到 4600 以上（约 1090 宽以下），b3 与 b4 之间会空出一大段，
+   site.js 给晕染层加 wash-tall，多一团 b5 放在两者正中。
+   相邻两团的中心区互不相叠：浅色 text/subtle 落在单团中心只剩 4.56:1，中心区相叠就会跌破 4.5:1。外缘少量相叠处两团各约 2%，无碍 */
 .b1{left:62%; top:-320px; transform:translate(calc(var(--p,0) * -160px), calc(var(--p,0) * 520px))}
-.b2{left:-380px; top:520px; width:760px; height:760px;
+.b2{left:-380px; top:14%; width:760px; height:760px;
     background:radial-gradient(circle, var(--wash-2) 0%, var(--wash-2b) 40%, transparent 68%);
     transform:translate(calc(var(--p,0) * 220px), calc(var(--p,0) * 420px))}
-.b3{left:38%; top:1500px; width:1100px; height:1100px;
+.b3{left:38%; top:40%; width:1100px; height:1100px;
     background:radial-gradient(circle, var(--wash-3) 0%, var(--wash-3b) 42%, transparent 70%);
     transform:translate(calc(var(--p,0) * -120px), calc(var(--p,0) * -260px))}
-.stamp{position:absolute; width:300px; height:300px; margin:-150px 0 0 -150px; border-radius:50%;
-       pointer-events:none;
-       background:radial-gradient(circle, var(--wash-stamp) 0%, var(--wash-stamp-b) 40%, transparent 70%);
-       animation:bleed 3.2s ease-out forwards}
-@keyframes bleed{0%{opacity:0; transform:scale(.35)} 20%{opacity:1} 100%{opacity:0; transform:scale(1.4)}}
+.b4{left:-240px; top:calc(100% - 1150px); width:1000px; height:1000px;
+    background:radial-gradient(circle, var(--wash-2) 0%, var(--wash-2b) 40%, transparent 68%);
+    transform:translate(calc(var(--p,0) * 160px), calc(var(--p,0) * -100px))}
+.b5{display:none; left:calc(100% - 640px); top:calc(70% - 520px); width:1000px; height:1000px;
+    background:radial-gradient(circle, var(--wash-3) 0%, var(--wash-3b) 42%, transparent 70%);
+    transform:translate(calc(var(--p,0) * -120px), calc(var(--p,0) * -160px))}
+.wash-tall .b5{display:block}
 
 /* ══════════ 区块通用 ══════════ */
 .sec{padding-block:var(--pt, var(--section-y)) var(--pb, var(--section-y))}
@@ -800,9 +803,7 @@ html.menu-open{overflow:hidden}
 .site .placeholder{color:var(--text-subtle)}
 
 @media (prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  .blob{transform:none !important}
-  .stamp{display:none}
+  .blob{transform:none !important}   /* 晕染静止一帧 */
 }
 @media print{
   /* 纸面宽度落在手机档，版心会缩成 350 宽的一窄条；打印时去掉版心上限，由页边距当留白 */
@@ -863,7 +864,7 @@ html.menu-open{overflow:hidden}
 </header>
 <div class="site" id="site">
   <div class="wash" id="wash" aria-hidden="true">
-    <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+    <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span><span class="blob b5"></span>
   </div>
 <main id="main">
   <div class="view" id="view-index">
@@ -1518,11 +1519,11 @@ html.menu-open{overflow:hidden}
     </nav>
       <div class="prose">
         <h2 class="t-label">1. Where we stand</h2>
-        <p class="t-body">This site is in design, not yet built. The target is WCAG 2.2 AA, and the colour and type tokens were checked against it before any page was drawn.</p>
+        <p class="t-body">This site is still in design and has not been built yet. The target is WCAG 2.2 AA, and the colour and type tokens were checked against it before any page was drawn.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">2. Already decided</h2>
-        <p class="t-body">Body text meets 4.5:1 and the printable pages meet 7:1. Motion is decorative, stops under reduced-motion settings, and no information depends on it. Nothing on the site needs a mouse.</p>
+        <p class="t-body">Body text meets 4.5:1 and the printable pages meet 7:1. The only motion is a slow drift of background colour on the home page as you scroll. It stops under reduced-motion settings, and no information depends on it. Nothing on the site needs a mouse.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">3. Not yet verified</h2>
@@ -1560,7 +1561,7 @@ html.menu-open{overflow:hidden}
       </div>
       <div class="prose">
         <h2 class="t-label">2. Transport</h2>
-        <p class="t-body">Every page will be served over HTTPS with HSTS enabled. The site is not yet published, so this is a commitment rather than a measurement.</p>
+        <p class="t-body">Every page will be served over HTTPS with HSTS enabled. The site is not yet published, so this is a commitment we will verify at launch.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">3. Access</h2>
@@ -1604,35 +1605,44 @@ html.menu-open{overflow:hidden}
 <script>
 (function(){
   'use strict';
-  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var fine = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+  /* 每次都查，系统中途切换「减少动态」立即生效 */
+  var reducedMq = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  /* ── 晕染。滚动驱动位移，指针晕开一团。2026-09-17 起全站唯一的动效 ── */
-  var site = document.getElementById('site');
-  var wash = document.getElementById('wash');
-  var span = 2400;
-  function sizeWash(){
-    /* 先归零再量：晕染是 .site 里的绝对定位块，不归零的话 scrollHeight 会把它自己算进去，每切一次页就长一轮 */
-    wash.style.height = '0px';
-    var ev = document.getElementById('evidence');
-    /* 单文件模式下非当前页是 hidden，offsetTop 会是 0，退回整页高度 */
-    span = (ev && ev.offsetTop > 0) ? ev.offsetTop : Math.max(1200, site.scrollHeight);
-    wash.style.height = span + 'px';
-  }
-  function drift(){
-    if (reduced) return;
-    var p = Math.max(0, Math.min(1, window.scrollY / Math.max(1, span - window.innerHeight)));
-    wash.style.setProperty('--p', p.toFixed(3));
-  }
-  sizeWash(); drift();
-  window.addEventListener('resize', function(){ sizeWash(); drift(); });
-  window.addEventListener('scroll', drift, { passive: true });
-  /* 路由切页后要重算：素档页不进晕染，其余页按新高度重铺 */
-  window.__toivoResize = function(plain){
-    wash.hidden = !!plain;
-    if (plain) return;
+  /* ── 晕染。只在首页，随滚动慢移，全站唯一的动效。2026-09-25 删去指针晕开 ── */
+  var site = document.getElementById('site');   /* 窄屏菜单也要用，别随晕染一起删 */
+  var wash = document.getElementById('wash');   /* 多页源文件里只有 index.html 有晕染块 */
+  if (wash) {
+    var span = 2400;
+    var sizeWash = function(){
+      /* 先归零再量：晕染是 .site 里的绝对定位块，不归零的话 scrollHeight 会把它自己算进去，每切一次页就长一轮 */
+      wash.style.height = '0px';
+      var ev = document.getElementById('evidence');
+      /* 单文件模式下非当前页是 hidden，offsetTop 会是 0，退回整页高度 */
+      span = (ev && ev.offsetTop > 0) ? ev.offsetTop : Math.max(1200, site.scrollHeight);
+      wash.style.height = span + 'px';
+      /* 晕染层高到 4600 以上时 b3 与 b4 之间空出一大段，多显示一团 b5 补上。按高度判断，页面在哪个宽度变长都跟得上 */
+      wash.classList.toggle('wash-tall', span >= 4600);
+    };
+    var drift = function(){
+      if (reducedMq && reducedMq.matches) return;   /* 静止一帧，CSS 同时把位移归零 */
+      var p = Math.max(0, Math.min(1, window.scrollY / Math.max(1, span - window.innerHeight)));
+      wash.style.setProperty('--p', p.toFixed(3));
+    };
     sizeWash(); drift();
-  };
+    /* 网页字体晚到会把 Evidence 往下推二三十像素，到齐后再量一次 */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if (!wash.hidden) { sizeWash(); drift(); } });
+    window.addEventListener('resize', function(){ sizeWash(); drift(); });
+    window.addEventListener('scroll', drift, { passive: true });
+    /* 系统中途关掉减少动态时立即按当前滚动位置落位，免得第一次滚动时色团跳一下 */
+    if (reducedMq && reducedMq.addEventListener) reducedMq.addEventListener('change', drift);
+    /* 单文件路由切页后调用：晕染只在首页，其余五页隐藏；回到首页按新高度重铺 */
+    window.__toivoResize = function(off){
+      wash.hidden = !!off;
+      if (off) return;
+      sizeWash(); drift();
+    };
+  }
+
   /* ── 窄屏菜单。1023 以下页眉收成 字标、MENU、按钮，MENU 打开满屏菜单 ── */
   var menu = document.getElementById('menu');
   var menuBtn = document.querySelector('.menu-btn');
@@ -1666,19 +1676,6 @@ html.menu-open{overflow:hidden}
       if (!m.matches && closeMenu(false)) { var wm = document.querySelector('.nav-in .wordmark'); if (wm) wm.focus(); }
     });
   }
-
-  var lastStamp = 0;
-  site.addEventListener('pointermove', function(e){
-    if (!fine || reduced) return;
-    var now = e.timeStamp; if (now - lastStamp < 80) return; lastStamp = now;
-    var r = site.getBoundingClientRect();
-    var y = e.clientY - r.top, x = e.clientX - r.left + 40;
-    if (y > span - 200 || y < 0) return;
-    var s = document.createElement('span');
-    s.className = 'stamp'; s.style.left = x + 'px'; s.style.top = y + 'px';
-    wash.appendChild(s);
-    s.addEventListener('animationend', function(){ s.remove(); });
-  });
 })();
 
 /* ── 六页共处一个文件。点击直接切页，不依赖 location.hash：
@@ -1686,8 +1683,7 @@ html.menu-open{overflow:hidden}
       同时保留 hashchange，真浏览器里地址栏仍然可用。 ── */
 (function(){
   'use strict';
-  var views = Object.create(null), PLAIN = Object.create(null);   /* 不用 {}：地址栏里的 #toString 之类会被当成页名 */
-  PLAIN.contact = PLAIN.legal = 1;                                 /* 素档页不进晕染 */
+  var views = Object.create(null);   /* 不用 {}：地址栏里的 #toString 之类会被当成页名 */
   Array.prototype.forEach.call(document.querySelectorAll('.view'), function(v){
     views[v.id.replace('view-','')] = v;
   });
@@ -1707,14 +1703,11 @@ html.menu-open{overflow:hidden}
       if (a.getAttribute('data-page') === page) a.setAttribute('aria-current','page');
       else a.removeAttribute('aria-current');
     });
-    if (window.__toivoResize) window.__toivoResize(!!PLAIN[page]);
+    if (window.__toivoResize) window.__toivoResize(page !== 'index');   /* 晕染只在首页 */
     var t = anchor && document.getElementById(anchor);
     if (t && !views[page].contains(t)) t = null;     /* 锚点必须在本页，别页的同名区块是隐藏的，滚不过去 */
-    /* 换页与首次载入直接跳，同页内的锚点才平滑滚。跨页平滑滚会横扫几千像素，演示时像失控 */
-    var behave = (changed || !booted) ? 'instant' : 'auto';   /* auto 跟随 html 的 scroll-behavior，减少动态时不会平滑滚 */
-    jump(t, behave);
-    /* 页面正在平滑滚动时直接跳，Chrome 不取消那段动画，落点会被带偏几十像素，下一帧再跳一次 */
-    if (behave === 'instant') requestAnimationFrame(function(){ if (navs === n) jump(t, 'instant'); });
+    /* 换页与锚点一律一帧到位（2026-09-25 撤掉平滑滚动） */
+    jump(t, 'instant');
     /* 首次载入带锚点时，网页字体晚到会把落点顶低十几像素，字体到齐后再对一次；其间用户动过或换过页就不再对 */
     if (!booted && t && document.fonts && document.fonts.ready) {
       var moved = false, stop = function(){ moved = true; };
@@ -1745,7 +1738,7 @@ html.menu-open{overflow:hidden}
       var el = document.getElementById(parts[0]);
       if (!el) return;
       e.preventDefault();
-      navs++;                                        /* 作废还没执行的补跳与字体到齐后的对位 */
+      navs++;                                        /* 作废还没执行的字体到齐后的对位 */
       focusOn(el);
       el.scrollIntoView({ block: 'start' });
       return;

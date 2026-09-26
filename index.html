@@ -685,7 +685,7 @@ html.menu-open{overflow:hidden}
 /* ══════════ Contact ══════════ */
 .ct-head{--pt:var(--space-96); --pb:0; --gap:var(--space-16)}
 .ct-channels{--pt:var(--space-96); --pb:var(--space-80)}
-.channels{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--space-48); align-items:start}
+.channels{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-48); align-items:start}
 .channel, .channel dl{display:flex; flex-direction:column; gap:var(--space-16)}
 .channel dl > div{display:flex; flex-direction:column; gap:var(--space-4)}
 .channel dt{font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
@@ -826,7 +826,7 @@ html.menu-open{overflow:hidden}
   .person{padding:var(--space-16)}
   .portrait{flex:0 0 88px; width:88px; height:110px}
   .person .txt{padding-top:var(--space-8)}
-  /* Contact 四组之间加分隔线，组与组分得开 */
+  /* Contact 各组之间加分隔线，组与组分得开 */
   .channels{gap:0}
   .channel{padding-block:var(--space-24); border-top:1px solid var(--border-subtle)}
   .channel:first-child{border-top:0; padding-top:0}
@@ -1200,12 +1200,6 @@ html.menu-open{overflow:hidden}
       <div><dt>Legal form</dt><dd>Private company limited by shares, incorporated in Hong Kong</dd></div>
       <div><dt>Business Registration Number</dt><dd>76068511</dd></div>
       <div><dt>Date of incorporation</dt><dd class="placeholder">[To be supplied]</dd></div>
-      <div><dt>Registered office</dt><dd class="placeholder">[To be supplied]</dd></div>
-      <div><dt>Directors</dt><dd class="placeholder">[To be supplied]</dd></div>
-      <div><dt>Telephone</dt><dd class="placeholder">[To be supplied]</dd></div>
-      <div><dt>Contact person</dt><dd class="placeholder">[To be supplied]</dd></div>
-      <div><dt>Data protection</dt><dd>Personal Data (Privacy) Ordinance, Cap. 486 · Data protection contact: [name, email]</dd></div>
-      <div><dt>Employees’ compensation insurance</dt><dd>[Insurer, policy number and expiry to be supplied] · Required under the Employees’ Compensation Ordinance, Cap. 282</dd></div>
     </dl>
     <p class="facts-note">AS AT 2026-09-26 · ROWS MARKED [TO BE SUPPLIED] ARE NOT YET CONFIRMED</p>
   </div>
@@ -1388,30 +1382,23 @@ html.menu-open{overflow:hidden}
         <h2 class="t-label">Partner briefing</h2>
         <dl>
           <div><dt>What we cover</dt><dd>One real problem, scoped with us before the brief is written</dd></div>
-          <div><dt>Email</dt><dd><span class="link">hello@[domain]</span></dd></div>
+          <div><dt>Email</dt><dd><span class="link">hello@toivo-ai.com</span></dd></div>
           <div><dt>Response</dt><dd>Within two working days</dd></div>
         </dl>
       </div>
       <div class="channel">
         <h2 class="t-label">General</h2>
         <dl>
-          <div><dt>Email</dt><dd><span class="link">hello@[domain]</span></dd></div>
+          <div><dt>Email</dt><dd><span class="link">hello@toivo-ai.com</span></dd></div>
           <div><dt>Response</dt><dd>Within two working days</dd></div>
         </dl>
       </div>
       <div class="channel">
         <h2 class="t-label">Procurement and tender</h2>
         <dl>
-          <div><dt>Email</dt><dd><span class="link">tenders@[domain]</span></dd></div>
+          <div><dt>Email</dt><dd><span class="link">hello@toivo-ai.com</span></dd></div>
           <div><dt>Pack</dt><dd>Company information pack on request</dd></div>
-          <div><dt>Includes</dt><dd>BR copy, insurance, anti-bribery declaration</dd></div>
-        </dl>
-      </div>
-      <div class="channel">
-        <h2 class="t-label">Registered office</h2>
-        <dl>
-          <div><dt>Address</dt><dd class="placeholder">[To be supplied]</dd></div>
-          <div><dt>Hours</dt><dd>Mon to Fri, 09:30 to 18:00 HKT</dd></div>
+          <div><dt>Includes</dt><dd>Business Registration certificate copy</dd></div>
         </dl>
       </div>
     </div>
@@ -1436,11 +1423,11 @@ html.menu-open{overflow:hidden}
     </nav>
       <div class="prose">
         <h2 class="t-label">1. What we collect</h2>
-        <p class="t-body">Contact details you send us, and basic analytics that do not identify you. We do not collect data about anyone under 18 through this website.</p>
+        <p class="t-body">Contact details you send us by email. We do not collect data about anyone under 18 through this website.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">2. Why we hold it</h2>
-        <p class="t-body">To answer your enquiry, to run a tender process, and to meet our record-keeping duties.</p>
+        <p class="t-body">To answer your enquiry, to take part in tenders, and to meet our record-keeping duties.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">3. Your rights</h2>
@@ -1448,11 +1435,11 @@ html.menu-open{overflow:hidden}
       </div>
       <div class="prose">
         <h2 class="t-label">4. Retention</h2>
-        <p class="t-body">Enquiry records are kept for two years. Tender records are kept as required by the funding body.</p>
+        <p class="t-body">We keep enquiry emails only as long as we need them to deal with the enquiry, and tender records for as long as the procuring institution requires.</p>
       </div>
       <div class="prose">
-        <h2 class="t-label">5. Transfers</h2>
-        <p class="t-body">We do not transfer personal data outside Hong Kong without your consent.</p>
+        <h2 class="t-label">5. Where it is held</h2>
+        <p class="t-body">Enquiry emails are held in the company’s Microsoft 365 mailbox.</p>
       </div>
     </div>
   </section>
@@ -1486,7 +1473,7 @@ html.menu-open{overflow:hidden}
       </div>
       <div class="prose">
         <h2 class="t-label">4. Our content</h2>
-        <p class="t-body">Text, design and the TOIVO name belong to the company. Third-party names appear only where the reference is factual or we hold permission.</p>
+        <p class="t-body">Text and design on this site belong to TOIVO EDTECH GROUP LIMITED. Third-party names appear only where the reference is factual or we hold permission.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">5. Governing law</h2>
@@ -1512,11 +1499,11 @@ html.menu-open{overflow:hidden}
     </nav>
       <div class="prose">
         <h2 class="t-label">1. What we set</h2>
-        <p class="t-body">One session cookie that keeps the site working. No advertising cookies and no cross-site trackers.</p>
+        <p class="t-body">This site sets no cookies of its own. No advertising cookies and no cross-site trackers.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">2. Analytics</h2>
-        <p class="t-body">Aggregate page counts only, with IP addresses truncated before storage. We cannot identify you from them.</p>
+        <p class="t-body">None at present.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">3. Your choice</h2>
@@ -1524,7 +1511,7 @@ html.menu-open{overflow:hidden}
       </div>
       <div class="prose">
         <h2 class="t-label">4. Third parties</h2>
-        <p class="t-body">Fonts are self-hosted. There is no embedded video, no social widget and no chat script.</p>
+        <p class="t-body">Fonts load from Google Fonts, which receives your IP address when a page loads. There is no embedded video, no social widget and no chat script.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">5. Changes</h2>
@@ -1558,7 +1545,7 @@ html.menu-open{overflow:hidden}
       </div>
       <div class="prose">
         <h2 class="t-label">3. Inside the product</h2>
-        <p class="t-body">Student work is held under a written agreement with the school. The school remains the data controller.</p>
+        <p class="t-body">When the product runs through a school, student work is held under a written agreement signed with the school before any student joins.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">4. Consent</h2>
@@ -1634,7 +1621,7 @@ html.menu-open{overflow:hidden}
       </div>
       <div class="prose">
         <h2 class="t-label">3. Access</h2>
-        <p class="t-body">Company email runs on a managed workspace with two-factor authentication required on every account.</p>
+        <p class="t-body">Company email runs on Microsoft 365.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">4. Reporting a problem</h2>
@@ -1642,7 +1629,7 @@ html.menu-open{overflow:hidden}
       </div>
       <div class="prose">
         <h2 class="t-label">5. Not yet in place</h2>
-        <p class="t-body">[Penetration test, incident-response plan and insurance certificates are pending. See <a href="#contact/ct-channels">Insurance and compliance</a>]</p>
+        <p class="t-body">No penetration test has been run yet, and there is no written incident-response plan.</p>
       </div>
     </div>
   </section>
@@ -1659,13 +1646,12 @@ html.menu-open{overflow:hidden}
       <div class="foot-cols">
         <div class="fcol"><h3>SITE</h3><a href="#what-we-do">How it works</a><a href="#index/evidence">Evidence</a><a href="#about">About</a><a href="#contact">Contact</a></div>
         <div class="fcol"><h3>LEGAL</h3><a href="#legal/lg-privacy">Privacy policy</a><a href="#legal/lg-terms">Terms</a><a href="#legal/lg-cookies">Cookie policy</a><a href="#legal/lg-children">Children’s data</a><a href="#legal/lg-accessibility">Accessibility statement</a><a href="#legal/lg-security">Security</a></div>
-        <div class="fcol"><h3>PROCUREMENT</h3><a href="#contact/ct-channels">Company information pack</a><a href="#contact/ct-channels">Insurance and compliance</a><a href="#contact/ct-channels">Anti-bribery declaration</a></div>
+        <div class="fcol"><h3>PROCUREMENT</h3><a href="#contact/ct-channels">Company information pack</a></div>
       </div>
       <div class="legal">
         <p>TOIVO&nbsp;EDTECH&nbsp;GROUP&nbsp;LIMITED｜<span class="zh">托禾教育科技集團有限公司</span></p>
         <p>A private company limited by shares, incorporated in Hong Kong.</p>
         <p>Business Registration Number 76068511</p>
-        <p>Registered office: [address to be supplied]</p>
         <p>© 2026 TOIVO EDTECH GROUP LIMITED</p>
       </div>
     </div>

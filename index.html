@@ -372,7 +372,7 @@ p, dd{text-wrap:pretty}   /* 段落末行不落单个词，标题另有 balance 
      text-decoration:none; border-radius:var(--radius-card); border:1px solid transparent; cursor:pointer;
      font:500 var(--font-body)/var(--lh-body) var(--font-stack);
      padding:calc(var(--space-16) - 1px) calc(var(--space-24) - 1px); white-space:nowrap}   /* 边框 1px 算进内距，尺寸与 Figma 一致。
-     悬停时颜色即时切换。transition 只用于页眉字标收起，animation 只用于首页的指针晕开，晕染的滚动位移由 site.js 写（2026-09-26） */
+     悬停时颜色即时切换。全站不设 transition；animation 只用于首页的指针晕开，晕染位移与页眉字标收起由 site.js 逐帧写（2026-09-26） */
 .btn-primary{background:var(--brand-solid); color:var(--text-on-brand-solid)}
 .btn-primary:hover{background:var(--brand-hover)}
 .btn-secondary{background:var(--bg-canvas); color:var(--text-body); border-color:var(--border-strong);
@@ -386,21 +386,10 @@ p, dd{text-wrap:pretty}   /* 段落末行不落单个词，标题另有 balance 
 .wordmark{display:inline-flex; color:var(--brand-solid); text-decoration:none; line-height:0}
 .wordmark svg{width:108px; height:auto; display:block}
 .wordmark .dot{fill:var(--brand-orange)}
-/* 页眉字标收起：页面离开顶部即收成圖形標誌，回到顶部展开，照抄 anthropic.com 的动法（2026-09-26）。
-   「oivo」与 t 右侧横笔 237ms 内淡出并收向 t，i 上的橙点 474ms 内滑到 t 右侧，落点即圖形標誌的橙色方块。
-   基础态写展开方向的过渡（时间倒放，曲线取反），收起态写收起方向的过渡。logo 宽度不变，导航不跟着移位。
-   只作用于页眉与菜单顶行，页脚字标不动 */
-.wordmark .wm-part{transition:transform 474ms cubic-bezier(.825,0,.23,1) 26ms, opacity 237ms cubic-bezier(.825,0,.23,1) 263ms}
-.logo-compact .nav-in .wordmark .wm-part,
-.logo-compact .menu-top .wordmark .wm-part{transition:transform 474ms cubic-bezier(.77,0,.175,1), opacity 237ms cubic-bezier(.77,0,.175,1)}
-.logo-compact .nav-in .wordmark .wm-fade,
-.logo-compact .menu-top .wordmark .wm-fade{opacity:0}
-.logo-compact .nav-in .wordmark .wm-o1, .logo-compact .menu-top .wordmark .wm-o1{transform:translateX(-17.3px)}
-.logo-compact .nav-in .wordmark .wm-i,  .logo-compact .menu-top .wordmark .wm-i{transform:translateX(-45.8px)}
-.logo-compact .nav-in .wordmark .wm-v,  .logo-compact .menu-top .wordmark .wm-v{transform:translateX(-53.9px)}
-.logo-compact .nav-in .wordmark .wm-o2, .logo-compact .menu-top .wordmark .wm-o2{transform:translateX(-78.4px)}
-/* 橙点落在 t 右侧：圖形標誌的方块在 x 16.88、y 7.34（字标坐标），i 点原在 x 49.82、y 0.49 */
-.logo-compact .nav-in .wordmark .wm-dot, .logo-compact .menu-top .wordmark .wm-dot{transform:translate(-32.94px, 6.85px)}
+/* 页眉字标收起：页面离开顶部即收成圖形標誌，回到顶部展开（触发照 anthropic.com）。动作照品牌预览模板 preview-template.html
+   （2026-09-21）「從標誌到名字」一段，由 site.js 逐帧驱动：横笔从左端伸缩，橙点在 t 旁与 i 上方之间走弧线，o、i、v、o 错开淡入淡出。
+   橙点走弧线时会拱出字标上沿约 13 个单位，页眉与菜单顶行的字标 SVG 放开溢出（页眉上方留白足够）；打印一律印完整字标 */
+.nav-in .wordmark svg, .menu-top .wordmark svg{overflow:visible}
 
 /* ══════════ 吸顶页眉 ══════════ */
 /* 字标在左，链接、语言切换、按钮一组靠右，按钮右缘对齐版心 */
@@ -869,7 +858,6 @@ html.menu-open{overflow:hidden}
 @media (prefers-reduced-motion:reduce){
   .blob{transform:none !important}   /* 晕染静止一帧 */
   .stamp{display:none}               /* 不放指针晕开 */
-  .wordmark .wm-part{transition:none !important}   /* 字标照样收起展开，不做过渡 */
 }
 @media print{
   /* 纸面宽度落在手机档，版心会缩成 350 宽的一窄条；打印时去掉版心上限，由页边距当留白 */
@@ -1716,12 +1704,60 @@ html.menu-open{overflow:hidden}
     };
   }
 
-  /* ── 页眉字标收起。页面离开顶部（scrollY > 0）收成圖形標誌，回到顶部展开，与滚动方向无关，照抄 anthropic.com。
-        状态写在 html 的 logo-compact 类上，页眉与菜单顶行一起变；过渡在 CSS 里 ── */
-  var root = document.documentElement;
-  var setCompact = function(){ root.classList.toggle('logo-compact', window.scrollY > 0); };
-  setCompact();
-  window.addEventListener('scroll', setCompact, { passive: true });
+  /* ── 页眉字标收起。页面离开顶部（scrollY > 0）收成圖形標誌，回到顶部展开，与滚动方向无关（触发照 anthropic.com）。
+        动作照品牌预览模板 preview-template.html（2026-09-21）「從標誌到名字」：进度 p 为 0 是圖形標誌、1 是完整字标，
+        全程 1150ms，按剩余距离折算时长；各部分在 p 上的时间段、easeOutCubic、smoothstep 与弧线都照模板。
+        坐标换算到字标单位（模板舞台单位 ÷ 5.4505）：横笔以 x 12.84 为锚点伸缩；橙点起点是圖形標誌方块 (16.879, 7.339)，
+        终点是 i 点 (49.822, 0.490)，途中上拱 13.21；字母淡入时自下 2.2 升到原位。页眉里 t 固定在左边，模板为居中所做的平移不用。
+        页眉与菜单顶行的字标一起变，页脚字标不动；减少动态下直接落到终态 ── */
+  var marks = Array.prototype.slice.call(document.querySelectorAll('.nav-in .wordmark svg, .menu-top .wordmark svg')).map(function(svg){
+    return { bar: svg.querySelector('.wm-bar'), dot: svg.querySelector('.wm-dot'),
+             letters: ['.wm-o1', '.wm-i', '.wm-v', '.wm-o2'].map(function(c){ return svg.querySelector(c); }) };
+  }).filter(function(m){ return m.bar && m.dot; });
+  if (marks.length) {
+    var clamp = function(n){ return Math.max(0, Math.min(1, n)); };
+    var range = function(p, a, b){ return clamp((p - a) / (b - a)); };
+    var smooth = function(n){ return n * n * (3 - 2 * n); };
+    var easeOut = function(n){ return 1 - Math.pow(1 - n, 3); };
+    var mix = function(a, b, n){ return a + (b - a) * n; };
+    var DOT0 = { x: 16.879, y: 7.339 }, DOT1 = { x: 49.822, y: 0.490 };
+    var renderLogo = function(p){
+      var ext = easeOut(range(p, .16, .67));                       /* 横笔伸出 */
+      var q = smooth(range(p, 0, .84));                            /* 橙点行程 */
+      var dx = mix(DOT0.x, DOT1.x, q) - DOT1.x, dy = mix(DOT0.y, DOT1.y, q) - 13.21 * Math.sin(Math.PI * q) - DOT1.y;
+      marks.forEach(function(m){
+        m.bar.setAttribute('transform', 'translate(12.842 0) scale(' + ext.toFixed(4) + ' 1) translate(-12.842 0)');
+        m.bar.style.opacity = ext === 0 ? '0' : '1';
+        m.dot.setAttribute('transform', 'translate(' + dx.toFixed(3) + ' ' + dy.toFixed(3) + ')');
+        m.letters.forEach(function(el, i){
+          if (!el) return;
+          var k = easeOut(range(p, .3 + i * .09, Math.min(1, .63 + i * .12)));
+          el.style.opacity = k.toFixed(3);
+          el.setAttribute('transform', 'translate(0 ' + (2.2 * (1 - k)).toFixed(3) + ')');
+        });
+      });
+    };
+    var logoP = window.scrollY > 0 ? 0 : 1, logoRaf = 0;
+    renderLogo(logoP);
+    var setLogo = function(){
+      var target = window.scrollY > 0 ? 0 : 1;
+      if (logoRaf) cancelAnimationFrame(logoRaf);
+      if (reducedMq && reducedMq.matches) { logoP = target; renderLogo(target); return; }
+      var from = logoP, dur = 1150 * Math.abs(target - from), t0 = performance.now();
+      if (!dur) return;
+      var tick = function(now){
+        var n = clamp((now - t0) / dur);
+        logoP = mix(from, target, n); renderLogo(logoP);
+        logoRaf = n < 1 ? requestAnimationFrame(tick) : 0;
+      };
+      logoRaf = requestAnimationFrame(tick);
+    };
+    var lastTarget = logoP;
+    window.addEventListener('scroll', function(){
+      var t = window.scrollY > 0 ? 0 : 1;
+      if (t !== lastTarget) { lastTarget = t; setLogo(); }
+    }, { passive: true });
+  }
 
   /* ── 窄屏菜单。1023 以下页眉收成 字标、MENU、按钮，MENU 打开满屏菜单。
         菜单是原生 popover，MENU 与 CLOSE 带 popovertarget，没有脚本也能开关，Esc 也能关（2026-09-25）。

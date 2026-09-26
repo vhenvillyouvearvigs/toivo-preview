@@ -388,7 +388,7 @@ p, dd{text-wrap:pretty}   /* 段落末行不落单个词，标题另有 balance 
 .wordmark .dot{fill:var(--brand-orange)}
 /* 页眉字标收起：页面离开顶部即收成圖形標誌，回到顶部展开（触发照 anthropic.com）。动作照品牌预览模板 preview-template.html
    （2026-09-21）「從標誌到名字」一段，由 site.js 逐帧驱动：横笔从左端伸缩，橙点在 t 旁与 i 上方之间走弧线，o、i、v、o 错开淡入淡出。
-   橙点走弧线时会拱出字标上沿约 13 个单位，页眉与菜单顶行的字标 SVG 放开溢出（页眉上方留白足够）；打印一律印完整字标 */
+   橙点走弧线时最高处拱出字标上沿约 9.5 个单位（弧高 13.21 是相对直线路径，终点 i 点本身在上沿下 0.49），页眉与菜单顶行的字标 SVG 放开溢出（页眉上方留白足够）；打印一律印完整字标 */
 .nav-in .wordmark svg, .menu-top .wordmark svg{overflow:visible}
 
 /* ══════════ 吸顶页眉 ══════════ */
@@ -1755,6 +1755,12 @@ html.menu-open{overflow:hidden}
       };
       logoRaf = requestAnimationFrame(tick);
     };
+    /* 系统中途开启减少动态：停下正在走的一段，直接落到当前该在的终态（照模板） */
+    if (reducedMq && reducedMq.addEventListener) reducedMq.addEventListener('change', function(m){
+      if (!m.matches) return;
+      if (logoRaf) { cancelAnimationFrame(logoRaf); logoRaf = 0; }
+      logoP = window.scrollY > 0 ? 0 : 1; renderLogo(logoP);
+    });
     var lastTarget = logoP;
     window.addEventListener('scroll', function(){
       var t = window.scrollY > 0 ? 0 : 1;

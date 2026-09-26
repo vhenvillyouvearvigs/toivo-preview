@@ -491,7 +491,8 @@ html.menu-open{overflow:hidden}
     transform:translate(calc(var(--p,0) * -120px), calc(var(--p,0) * -160px))}
 .wash-tall .b5{display:block}
 /* 指针晕开：鼠标经过处每 80ms 放一团，3.2 秒内放大并散去。09-06 采纳，09-25 撤，2026-09-26 Cindy 改回原版。
-   晕团叠在小灰字上会暂时压低对比度（浅色叠一团 4.17:1，深色 3.4:1），读者挪开鼠标即恢复；Legal 无障碍声明写明这一点 */
+   晕团叠在文字上会暂时压低对比度：慢速划过时晕团越叠越浓，落在色团中心的深色正文约 1.9:1、浅色小灰字约 1.8:1（按动画逐帧推算，见 MOTION.md），
+   读者挪开鼠标后几秒内恢复；Legal 无障碍声明写明这一点 */
 .stamp{position:absolute; width:300px; height:300px; margin:-150px 0 0 -150px; border-radius:50%;
        pointer-events:none;
        background:radial-gradient(circle, var(--wash-stamp) 0%, var(--wash-stamp-b) 40%, transparent 70%);
@@ -1155,7 +1156,7 @@ html.menu-open{overflow:hidden}
         <p class="t-lead">We sell verifiable evidence of capability. It would be strange if our own claims were not verifiable. Each row below states what backs it, and nothing is hidden behind an interaction.</p>
       </div>
       <div class="chain" id="chain">
-        <div><span class="k">Company</span><a class="v" href="#about/ab-facts">TOIVO EDTECH GROUP LIMITED</a><span class="s">Hong Kong Companies Registry · BRN on file</span></div>
+        <div><span class="k">Company</span><a class="v" href="#about/ab-facts">TOIVO EDTECH GROUP LIMITED</a><span class="s">Hong Kong Companies Registry · BRN 76068511</span></div>
         <div><span class="k">Method</span><a class="v" href="#what-we-do/wwd-layers">The five-step loop</a><span class="s">Design spec, versioned, dated</span></div>
         <div><span class="k">Assessment</span><a class="v" href="#what-we-do/wwd-layers">Rubric and evidence standard</a><span class="s">Drafted with education specialists · in review</span></div>
         <div><span class="k">Credential</span><a class="v" href="#what-we-do/wwd-layers">Open Badges 3.0 compatible</a><span class="s">Format is public; our issuer record does not exist yet. Infrastructure in build, 2026-09.</span></div>
@@ -1195,9 +1196,9 @@ html.menu-open{overflow:hidden}
     <p class="t-eyebrow">COMPANY INFORMATION</p>
     <dl class="facts rows">
       <div><dt>Registered name</dt><dd>TOIVO EDTECH GROUP LIMITED</dd></div>
-      <div><dt>Registered Chinese name</dt><dd class="placeholder">[To be confirmed]</dd></div>
+      <div><dt>Registered Chinese name</dt><dd><span class="zh" lang="zh-Hant">托禾教育科技集團有限公司</span></dd></div>
       <div><dt>Legal form</dt><dd>Private company limited by shares, incorporated in Hong Kong</dd></div>
-      <div><dt>Business Registration Number</dt><dd>XXXXXXXX</dd></div>
+      <div><dt>Business Registration Number</dt><dd>76068511</dd></div>
       <div><dt>Date of incorporation</dt><dd class="placeholder">[To be supplied]</dd></div>
       <div><dt>Registered office</dt><dd class="placeholder">[To be supplied]</dd></div>
       <div><dt>Directors</dt><dd class="placeholder">[To be supplied]</dd></div>
@@ -1206,7 +1207,7 @@ html.menu-open{overflow:hidden}
       <div><dt>Data protection</dt><dd>Personal Data (Privacy) Ordinance, Cap. 486 · Data protection contact: [name, email]</dd></div>
       <div><dt>Employees’ compensation insurance</dt><dd>[Insurer, policy number and expiry to be supplied] · Required under the Employees’ Compensation Ordinance, Cap. 282</dd></div>
     </dl>
-    <p class="facts-note">AS AT 2026-09-09 · ROWS MARKED [TO BE SUPPLIED] ARE NOT YET CONFIRMED</p>
+    <p class="facts-note">AS AT 2026-09-26 · ROWS MARKED [TO BE SUPPLIED] ARE NOT YET CONFIRMED</p>
   </div>
 </section>
 
@@ -1591,7 +1592,7 @@ html.menu-open{overflow:hidden}
       </div>
       <div class="prose">
         <h2 class="t-label">2. Already decided</h2>
-        <p class="t-body">Body text meets 4.5:1 across the site. The printable content (contact details, legal text, company facts, team and footer) meets 7:1 in the light theme and in print. Two things move. On every page, the header logo shortens to its t mark once you scroll away from the top. On the home page, the background colour drifts slowly as you scroll, and on a computer it spreads softly where the mouse moves; that spread can briefly lower the contrast of nearby text until the pointer moves on. Under reduced-motion settings the logo switches without animation and the background stays still. No information depends on any of it. Nothing on the site needs a mouse.</p>
+        <p class="t-body">Body text meets 4.5:1 across the site, apart from the brief home-page mouse effect described below. The printable content (contact details, legal text, company facts, team and footer) meets 7:1 in the light theme and in print. Two things move. On every page, the header logo shortens to its t mark once you scroll away from the top. On the home page, the background colour drifts slowly as you scroll, and on a computer it spreads softly where the mouse moves; that spread can briefly lower the contrast of nearby text until the pointer moves on. Under reduced-motion settings the logo switches without animation and the background stays still. No information depends on any of it. Nothing on the site needs a mouse.</p>
       </div>
       <div class="prose">
         <h2 class="t-label">3. Not yet verified</h2>
@@ -1661,9 +1662,9 @@ html.menu-open{overflow:hidden}
         <div class="fcol"><h3>PROCUREMENT</h3><a href="#contact/ct-channels">Company information pack</a><a href="#contact/ct-channels">Insurance and compliance</a><a href="#contact/ct-channels">Anti-bribery declaration</a></div>
       </div>
       <div class="legal">
-        <p>TOIVO EdTech｜<span class="zh">托禾教育科技</span> is the trading brand of TOIVO&nbsp;EDTECH&nbsp;GROUP&nbsp;LIMITED</p>
+        <p>TOIVO&nbsp;EDTECH&nbsp;GROUP&nbsp;LIMITED｜<span class="zh">托禾教育科技集團有限公司</span></p>
         <p>A private company limited by shares, incorporated in Hong Kong.</p>
-        <p>Business Registration Number XXXXXXXX</p>
+        <p>Business Registration Number 76068511</p>
         <p>Registered office: [address to be supplied]</p>
         <p>© 2026 TOIVO EDTECH GROUP LIMITED</p>
       </div>
@@ -1676,7 +1677,7 @@ html.menu-open{overflow:hidden}
   /* 每次都查，系统中途切换「减少动态」立即生效 */
   var reducedMq = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  /* ── 晕染。只在首页：随滚动慢移，鼠标经过处晕开（2026-09-26 恢复）。全站唯一的动效 ── */
+  /* ── 晕染。只在首页：随滚动慢移，鼠标经过处晕开（2026-09-26 恢复）。全站另一处动效是下方的页眉字标收起 ── */
   var site = document.getElementById('site');   /* 窄屏菜单也要用，别随晕染一起删 */
   var wash = document.getElementById('wash');   /* 多页源文件里只有 index.html 有晕染块 */
   if (wash) {

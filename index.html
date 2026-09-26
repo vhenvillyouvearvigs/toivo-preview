@@ -1705,8 +1705,8 @@ html.menu-open{overflow:hidden}
   }
 
   /* ── 页眉字标收起。页面离开顶部（scrollY > 0）收成圖形標誌，回到顶部展开，与滚动方向无关（触发照 anthropic.com）。
-        动作照品牌预览模板 preview-template.html（2026-09-21）「從標誌到名字」：进度 p 为 0 是圖形標誌、1 是完整字标，
-        全程 1150ms，按剩余距离折算时长；各部分在 p 上的时间段、easeOutCubic、smoothstep 与弧线都照模板。
+        动作照品牌预览模板（参考/2026-09-21 品牌预览模板（字标动画）.html）「從標誌到名字」：进度 p 为 0 是圖形標誌、1 是完整字标，
+        全程 500ms（模板演示页为 1150ms），按剩余距离折算时长；各部分在 p 上的时间段、easeOutCubic、smoothstep 与弧线都照模板。
         坐标换算到字标单位（模板舞台单位 ÷ 5.4505）：横笔以 x 12.84 为锚点伸缩；橙点起点是圖形標誌方块 (16.879, 7.339)，
         终点是 i 点 (49.822, 0.490)，途中上拱 13.21；字母淡入时自下 2.2 升到原位。页眉里 t 固定在左边，模板为居中所做的平移不用。
         页眉与菜单顶行的字标一起变，页脚字标不动；减少动态下直接落到终态 ── */
@@ -1720,6 +1720,9 @@ html.menu-open{overflow:hidden}
     var smooth = function(n){ return n * n * (3 - 2 * n); };
     var easeOut = function(n){ return 1 - Math.pow(1 - n, 3); };
     var mix = function(a, b, n){ return a + (b - a) * n; };
+    /* 全程时长：模板演示页是 1150ms（循环展示用），页眉里压到与 anthropic.com 页眉相同的 500ms（2026-09-26 Cindy 嫌 1150 太慢）。
+       各部分在 p 上的时间段与曲线不变，只是整体加快 */
+    var LOGO_MS = 500;
     var DOT0 = { x: 16.879, y: 7.339 }, DOT1 = { x: 49.822, y: 0.490 };
     var renderLogo = function(p){
       var ext = easeOut(range(p, .16, .67));                       /* 横笔伸出 */
@@ -1743,7 +1746,7 @@ html.menu-open{overflow:hidden}
       var target = window.scrollY > 0 ? 0 : 1;
       if (logoRaf) cancelAnimationFrame(logoRaf);
       if (reducedMq && reducedMq.matches) { logoP = target; renderLogo(target); return; }
-      var from = logoP, dur = 1150 * Math.abs(target - from), t0 = performance.now();
+      var from = logoP, dur = LOGO_MS * Math.abs(target - from), t0 = performance.now();
       if (!dur) return;
       var tick = function(now){
         var n = clamp((now - t0) / dur);

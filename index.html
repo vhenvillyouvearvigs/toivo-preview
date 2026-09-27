@@ -767,52 +767,57 @@ html.menu-open{overflow:hidden}
   .menu-cta{max-width:704px}   /* 菜单主按钮最宽到 Figma 768 画板的版心，1023 宽时不拉成 959 */
 }
 @media (max-width:767px){
-  /* 节奏：首屏标题离页眉 40，区块之间约 96，原先内页沿用桌面 96 与 80，两节之间空出近 200 */
-  .hero{padding-block:var(--space-40) var(--space-48)}
-  .hero-in{gap:var(--space-32)}
-  .loop, .what{--pt:var(--space-48); --pb:var(--space-48)}
-  /* 五步：步与步隔 48，步名离自己的卡 16，读得出步名是这张卡的标题 */
-  .steps{gap:var(--space-48)}
-  .step{gap:var(--space-16)}
-  .ab-hero, .wwd-hero, .in-hero, .ct-head{--pt:var(--space-40)}
-  .ab-hero{--pb:var(--space-48)}
-  .ab-why, .ab-facts{--pt:var(--space-48); --pb:var(--space-48)}
-  .ab-team{--pt:var(--space-48); --pb:var(--space-64)}
-  .wwd-hero{--pb:var(--space-16)}
-  .wwd-who{--pt:var(--space-48)}
-  .who > div{padding-block:var(--space-16); gap:var(--space-8)}
-  .wwd-layers{--pt:var(--space-24); --pb:var(--space-48)}
-  .part{padding-block:var(--space-32); gap:var(--space-16)}
+  /* 节奏（2026-09-27 收紧）：每个区块上内距取 --section-y（64），下内距 0，区块交界只留一次；页脚上内距同样取 --section-y。
+     交界有色带或描边时，留白分到两侧：色带（Evidence、收尾块）内外各 48，法务各节 32 + 线 + 32。
+     组件内部间距降一档（48→32、40→32、32→24、24→16、16→12、12→8），组内一律近于组间；列表首项上内距、末项下内距归零。
+     页脚与法务兄弟页链接点击框 32（WCAG 2.2 AA 的 2.5.8 要求 24×24，另留 8），其余点击目标仍是 44。
+     原写「首屏标题离页眉 40，区块之间约 96，原先内页沿用桌面 96 与 80，两节之间空出近 200」，区块上下内距各取 48 到 64，
+     上一块的下内距叠上下一块的上内距，2026-09-27 撤（首屏标题离页眉 40 仍保留） */
+  .hero{padding-block:var(--space-40) 0}   /* 底部交给下一段的 section-y（原写下内距 48，2026-09-27 撤） */
+  .hero-in{gap:var(--space-24)}            /* 按钮到样例卡 32→24 */
+  .loop{--pt:var(--section-y); --pb:0; --gap:var(--space-32)}                  /* 标题区到五步 48→32 */
+  .what{--pt:var(--section-y); --pb:var(--space-48); --gap:var(--space-32)}    /* 下接 Evidence 色带，色带外留 48 */
+  /* 五步：步与步隔 32，步名离自己的卡 12，组内仍明显小于组间，读得出步名是这张卡的标题（原写 48 与 16，2026-09-27 撤） */
+  .steps{gap:var(--space-32)}
+  .step{gap:var(--space-12)}
+  .ab-hero, .wwd-hero, .in-hero, .ct-head{--pt:var(--space-40); --pb:0}   /* 页首标题离页眉 40，下内距交给下一段 */
+  .ab-why, .ab-facts, .ab-team{--pt:var(--section-y); --pb:0}
+  .wwd-who, .wwd-layers, .wwd-domains, .wwd-ladder{--pt:var(--section-y); --pb:0}
+  .who > div{padding-block:var(--space-12); gap:var(--space-4)}   /* 标签贴着值，与 About 资料表的 4 一致 */
+  .part{padding-block:var(--space-24); gap:var(--space-12)}
   .part:last-child, .dom:last-child{padding-bottom:0}   /* 末项的内距别叠在区块留白上 */
-  .wwd-domains{--pt:var(--space-48); --pb:var(--space-48)}
-  .wwd-ladder{--pt:var(--space-48); --pb:var(--space-64)}
-  .stages{gap:var(--space-16)}
-  .in-hero{--pb:var(--space-40)}
-  .in-list{--pb:var(--space-64)}
-  .ct-channels{--pt:var(--space-48); --pb:var(--space-64)}
-  .lg{--pt:var(--space-48); --pb:var(--space-48)}
+  .part:first-child{padding-top:0}                      /* 首项同理 */
+  .wwd-domains{--gap:var(--space-32)}                   /* 标题区到领域 40→32 */
+  .stages{gap:var(--space-12)}                          /* 阶梯卡行列间距 16→12 */
+  .in-list{--pt:var(--space-40); --pb:0}                /* 列表紧跟页首导语，没有自己的标题，离导语 40 */
+  .ct-channels{--pt:var(--space-40); --pb:0}            /* 同上 */
+  .lg{--pt:var(--space-32); --pb:var(--space-32)}       /* 节与节之间有描边：32 + 线 + 32，合计仍是 64 */
   .lg:first-child{--pt:var(--space-40)}
+  .lg:last-child{--pb:0}
   /* 首屏两个按钮上下叠、撑满，第二个的字不再缩进 */
   .cta-row{flex-direction:column; align-items:stretch; gap:var(--space-4)}
   .closing .btn{align-self:stretch}   /* 收尾按钮与首屏按钮一样撑满 */
-  .chain a.v{justify-self:start; padding-block:9px; margin-block:-9px}   /* 链接只占文字宽，点击高 44 */
-  /* 样例卡底栏：说明一行，按钮在下方撑满，点击区 45，照 Figma 390 */
-  .card-foot{flex-direction:column; align-items:stretch; gap:var(--space-12)}
+  /* Evidence 四条链接只占文字宽，链接盒只剩一行字高（26），44 点击区由本段末尾的伪元素撑出；z-index 让点击区盖过下一行说明。
+     左右各借 2（内距 2 配负外距 2，文字位置不动），焦点框左右离字 2。
+     原写上下内距 9 配负外距 9 把链接盒撑到 44，焦点框横穿上方标签的字脚与下方说明的字头，2026-09-27 撤 */
+  .chain a.v{justify-self:start; position:relative; z-index:1; padding:0 var(--space-2); margin:0 calc(-1 * var(--space-2))}
+  /* 样例卡底栏：说明一行，按钮在下方撑满，点击区 45，照 Figma 390；四边内距 16，与卡头、卡身一致 */
+  .card-foot{flex-direction:column; align-items:stretch; gap:var(--space-12); padding:var(--space-16)}
   .card-foot .btn{padding-block:calc(var(--space-12) - 1px)}
   /* 标签与值的两栏表在手机上改为标签在上、值在下，与 About 资料表一致；两栏时值列只剩 160 到 196 宽 */
   .brief-fields > div, .artifact-fields > div, .part-facts > div, .chain > div{grid-template-columns:1fr; gap:var(--space-2); align-items:start}
   .chain .s{grid-column:auto}
-  .artifact-fields{gap:var(--space-12)}
-  /* 四产品照 Figma 390 改成平铺条目：编号、名称、状态章、说明，证据另起一块 */
-  .prod{grid-template-columns:minmax(0,1fr); gap:var(--space-8); background:none; border:0; border-radius:0; padding:var(--space-16) 0}
+  .artifact-fields{padding:var(--space-16); gap:var(--space-8)}   /* 上 24→16，字段之间 12→8 */
+  /* 四产品照 Figma 390 改成平铺条目：编号、名称、状态章、说明，证据另起一块。产品上下内距 0，产品之间由本段末尾的 .products 隔 40 */
+  .prod{grid-template-columns:minmax(0,1fr); gap:var(--space-8); background:none; border:0; border-radius:0; padding:0}
   .prod > :not(.num){grid-column:1}
   .prod .ev{margin-top:var(--space-8); padding-top:var(--space-12); border-top:1px solid var(--border-subtle)}
   .prod .ev::before{content:"EVIDENCE"; display:block; margin-bottom:var(--space-4);
                     font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
-  .lrow{grid-template-columns:20px minmax(0,1fr); column-gap:var(--space-12)}
+  .lrow{grid-template-columns:20px minmax(0,1fr); column-gap:var(--space-12); padding-block:var(--space-12); row-gap:var(--space-4)}
   /* 团队卡收紧，一屏能看到两张多 */
-  .people{gap:var(--space-16)}
-  .person{padding:var(--space-16)}
+  .people{gap:var(--space-12)}
+  .person{padding:var(--space-12)}
   .portrait{flex:0 0 88px; width:88px; height:110px}
   .person .txt{padding-top:var(--space-8)}
   /* Contact 各组之间加分隔线，组与组分得开 */
@@ -821,22 +826,94 @@ html.menu-open{overflow:hidden}
   .channel:first-child{border-top:0; padding-top:0}
   /* 阶梯卡的说明 12 太小，升到 14 */
   /* 阶梯两列卡：用 subgrid 让同一行两张卡的分隔线对齐 */
-  .stages{row-gap:var(--space-16)}
   .stage{display:grid; grid-row:span 5; grid-template-rows:subgrid; row-gap:0; align-content:start; padding:var(--space-12)}
   .stage .t-caption, .stage .outputs{font-size:var(--font-small); line-height:var(--lh-small)}
-  .entry{gap:var(--space-8)}
+  .entry{gap:var(--space-8); padding-block:var(--space-24)}
   .entry .meta{flex-direction:row; gap:var(--space-12)}
-  /* 法务：兄弟页链接点击区 44，元信息行用 12 的 mono */
-  .siblings{gap:0 var(--space-16)}
-  .siblings a{display:inline-flex; align-items:center; min-height:44px}
+  /* 法务：兄弟页链接点击框 32 高、两行之间 0（行距 32），元信息行用 12 的 mono。原写点击区 44，2026-09-27 撤。
+     左右各借 4：「Terms」39 宽补到 47，文字位置不动，文字间距仍是 16。文字在 32 框内居中，框边到文字行框上下各 5.5 */
+  .siblings{gap:0 var(--space-16); padding-bottom:var(--space-24)}
+  .siblings a{display:inline-flex; align-items:center; min-height:var(--space-32); padding-inline:var(--space-4); margin-inline:calc(-1 * var(--space-4))}
   .lg .head-block .t-mono-s{font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono)}
-  /* 页脚两栏，链接点击区 44；单栏时页脚有近两屏高 */
-  .foot{padding-block:var(--space-48) var(--space-32)}
-  .foot .wrap{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-32) var(--space-16)}
+  /* 页脚两栏按行对齐（单栏时页脚有近两屏高）：字标单独一行（点击区 44），下面两个 .foot-cols 拆开，六组两两成行，
+     同一行两组的组标题顶端对齐；阅读与 Tab 顺序跟着 DOM 走，正好逐行从左到右。法定区单独占最后一行，上方 24 + 分隔线 + 24。
+     链接点击框 32，见本段末尾（原写 44，2026-09-27 撤） */
+  .foot{padding-block:var(--section-y) var(--space-32)}
+  .foot .wrap{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-24) var(--space-16); align-items:start}
   .foot .wordmark, .foot .legal{grid-column:1 / -1}
   .foot-cols{display:contents}
-  .fcol h3{margin-bottom:var(--space-4)}
-  .legal p{font-size:var(--font-small); line-height:var(--lh-small)}
+  .fcol h3{margin-bottom:var(--space-8)}   /* 组标题到第一条链接框 8，到链接文字看得见 13.5 */
+
+  /* 【2026-09-27 新增 · 区块节奏】 */
+  .hero-copy{gap:var(--space-16)}                                  /* 眉标、大标题、导语 24→16 */
+  .sec > .wrap{gap:var(--gap, var(--space-16))}                    /* 没有单独设 --gap 的区块，眉标、标题、导语 24→16（与 .head-block 同值） */
+  .evidence{--pt:var(--space-48); --pb:var(--space-48); --gap:var(--space-32); min-height:0}   /* 色带内 48；手机不撑满一屏（内容本身已高过一屏） */
+  .closing{padding-block:var(--space-48)}                          /* 色带内 64→48，与 Evidence 同 */
+  .wwd-who, .ab-facts{--gap:var(--space-24)}                       /* 只有眉标没有标题的两段：眉标到表、表到备注保持 24 */
+
+  /* 【2026-09-27 新增 · 列表首末项不叠留白】 */
+  .rows:not(.all-lines) > :first-child{padding-top:0}
+  .rows > :last-child{padding-bottom:0}
+  .chain > div:first-child{padding-top:0}
+  .chain > div:last-child{padding-bottom:0}
+  .entry:first-child{padding-top:0}
+  .entry:last-child{padding-bottom:0}
+  .channel:last-child{padding-bottom:0}
+
+  /* 【2026-09-27 新增 · 组件内部降一档】 */
+  /* 首屏样例卡与五步证据卡：四边统一 16 */
+  .card-head{padding:var(--space-12) var(--space-16)}
+  .card-body{padding:var(--space-16); gap:var(--space-12)}
+  .brief-fields > div{padding-block:var(--space-8)}
+  .cta-row .btn-ghost{padding-block:calc((44px - var(--lh-body)) / 2 - 1px)}   /* 第二个按钮没有描边，58 高只是点击区，降到 44 */
+  .step-text{gap:var(--space-8)}                                   /* 步名到一句说明 12→8 */
+  .artifact-head{padding:var(--space-16); gap:var(--space-8)}
+  /* 四个产品：之间没有描边，只靠间距分开；产品内证据线上方只隔 16，产品之间 40，线读得出属于上面那个产品 */
+  .products{gap:var(--space-40)}
+  .naming{gap:var(--space-16)}
+  .chain > div{padding-block:var(--space-12)}
+  .facts > div{padding-block:var(--space-12)}
+  .part .title{gap:var(--space-8)}
+  .part .detail{gap:var(--space-16)}
+  .part-facts > div{padding-block:var(--space-8)}
+  .dom{padding-block:var(--space-16); gap:var(--space-8)}
+  .stage .t-caption{margin-top:var(--space-8)}
+  .stage .outputs{margin-top:var(--space-8); padding-top:var(--space-8)}
+  .channel, .channel dl{gap:var(--space-12)}                       /* 组内 16→12；组间 24 + 线 + 24 不动，组才分得开 */
+  .prose + .prose{margin-top:var(--space-24)}                      /* 条款之间 32→24，条款内 8 */
+  .lg .head-block{padding-bottom:var(--space-24)}                  /* 页头到兄弟页导航 40→24 */
+
+  /* 【2026-09-27 新增 · 点击区与焦点框】 */
+  /* Evidence 链接：44 点击区由伪元素撑出（原先下沿被说明盖住 7，实测只剩 37）。焦点框外扩 0，上下贴着链接盒，
+     离上方标签「Company」的 p、y 字脚 2.6（外扩 2 时只剩 0.6） */
+  .chain a.v::after{content:""; position:absolute; left:0; right:0; top:50%; height:44px; transform:translateY(-50%)}
+  .chain a.v:focus-visible{outline-offset:0}
+  /* 法务正文里的行内链接（三处 Contact）：上下内距 2 把点击高从 21 撑到 25（≥ 24），行内元素的上下内距不占行高，版面不动。
+     左右各借 2（做法同 Evidence 链接），横向净宽为 0，断行不变；焦点框外扩 0，四边离自身字形约 2，不压上下行的字。
+     两条必须一起带上，只带一条焦点框就会贴字。句中链接做不到 44，按 2.5.8 的行内豁免处理 */
+  .prose a{padding-block:var(--space-2); padding-inline:var(--space-2); margin-inline:calc(-1 * var(--space-2))}
+  .prose a:focus-visible{outline-offset:0}
+
+  /* 【2026-09-27 新增 · 页脚】 */
+  /* 链接点击框 32 高，链接之间 0（行距 32），上下内距 4：单行时靠 min-height 32 与上方 ≤1023 段的 flex 居中，文字在框正中；
+     折成两行的链接（Company information pack）框高随内容（42 + 8 = 50），上下各 4。
+     链接撑满栏宽（360 宽时约 152）。左右各借 4（内距 4 配负外距 4，文字位置不动）：焦点框左右都伸出栏边 8，与栏对称，
+     左缘离字由 2 放到 6；两栏的框各伸进栏间 8，正好在 16 的栏间中线相接 */
+  .fcol a{min-height:var(--space-32); padding-block:var(--space-4); align-self:stretch;
+          padding-inline:var(--space-4); margin-inline:calc(-1 * var(--space-4))}
+  .foot .legal{padding-top:var(--space-24)}
+  /* 法定身份四段用基础档的 16/26（C3：≥ 1rem）。原写手机档 14/21，2026-09-27 撤 */
+  .legal .zh{white-space:nowrap}                                   /* 中文公司名整名换行，别断在中间 */
+
+  /* 打印：纸面宽落在本档时，整块页脚放得进一页（按 673 宽模拟纸面量得 884 高，A4 内容高约 1002），整块不拆；
+     万一放不下，退一步保证组、字标与法务块不被分页线拆开（Chromium 对网格行之间的 break-before:avoid 不生效，只作兜底）。
+     2026-09-27 实测：Chromium 打印 A4（16mm 页边距）时宽度媒体查询落在 768 到 1023 档，本段在 Chromium 纸面上不生效 */
+  @media print{
+    .foot .wrap{break-inside:avoid}
+    .foot .wordmark{break-after:avoid}
+    .fcol{break-inside:avoid}
+    .foot .legal{break-before:avoid}
+  }
 }
 /* 手机横屏（只限 1023 以下，矮的桌面窗口不受影响）：页眉降到 56，按钮收成 40 高，首屏标题离页眉 40；
    首屏按钮与卡底栏恢复横排；菜单链接排两列，整张菜单不用滚 */
@@ -1638,7 +1715,7 @@ html.menu-open{overflow:hidden}
       </div>
       <div class="legal">
         <p>TOIVO&nbsp;EDTECH&nbsp;GROUP&nbsp;LIMITED｜<span class="zh">托禾教育科技集團有限公司</span></p>
-        <p>A private company limited by shares, incorporated in Hong Kong.</p>
+        <p>A private company limited by shares, incorporated&nbsp;in&nbsp;Hong&nbsp;Kong.</p>
         <p>Business Registration Number 76068511</p>
         <p>© 2026 TOIVO EDTECH GROUP LIMITED</p>
       </div>

@@ -907,7 +907,8 @@ html.menu-open{overflow:hidden}
 
   /* 打印：纸面宽落在本档时，整块页脚放得进一页（按 673 宽模拟纸面量得 884 高，A4 内容高约 1002），整块不拆；
      万一放不下，退一步保证组、字标与法务块不被分页线拆开（Chromium 对网格行之间的 break-before:avoid 不生效，只作兜底）。
-     2026-09-27 实测：Chromium 打印 A4（16mm 页边距）时宽度媒体查询落在 768 到 1023 档，本段在 Chromium 纸面上不生效 */
+     2026-09-27 实测纸面落在哪一档取决于页边距从哪里来：打印对话框设页边距时，Chromium 按扣掉页边距后的宽算（A4 加 16mm 为 673，落在本档）；
+     只靠下方 @page 的 16mm 时按整张 A4 宽 794 算，落在 768 到 1023 档，本段不生效 */
   @media print{
     .foot .wrap{break-inside:avoid}
     .foot .wordmark{break-after:avoid}
@@ -937,7 +938,8 @@ html.menu-open{overflow:hidden}
   .stamp{display:none}               /* 不放指针晕开 */
 }
 @media print{
-  /* 纸面宽度落在手机档，版心会缩成 350 宽的一窄条；打印时去掉版心上限，由页边距当留白 */
+  /* 纸面按页边距来源落在手机档或平板档（见手机档细调段末的打印注释）；打印时去掉版心上限与左右边距，由页边距当留白。
+     原写「纸面宽度落在手机档，版心会缩成 350 宽的一窄条」，2026-09-27 撤 */
   @page{margin:16mm}
   .wrap, .nav-in{max-width:none; padding-inline:0}
   .nav{position:static; height:auto; border:0}

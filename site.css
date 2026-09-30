@@ -1,0 +1,1333 @@
+/* TOIVO 官网原型 · 全站共用的组件样式
+   token 不在这里：build.py 把 参考/tokens/tokens.css 原样复制到输出目录，页面用 <link> 引入，tokens.css 不手改。
+   各页自己的样式在 css/page-<页>.css，构建时接在本文件后面合成一份 site.css；本文件只放两页以上共用的东西。
+   尺寸与字样式取自 Figma「TOIVO 官网」Wireframe 页的 1440 画板，2026-09-23 对齐；2026-09-30 起三语，语言层写在「语言」一节。 */
+
+/* ══════════ 明暗两套的局部值 ══════════ */
+/* 晕染带 alpha 的值 Figma 变量表达不了，在这里按主题各给一套。
+   规则与 tokens.css 相同：裸 :root 是浅色，系统深色走 prefers-color-scheme 且被显式 light 覆盖，显式 dark 再赢一次。 */
+:root{
+  /* 浅色晕染取 Figma wash 的色相：olive/900 低透明度（Figma 为 6.5% 到 3% 到 0，b3、b5 为 6% 到 2.5%），2026-09-23 由偏黄的 olive 300、400 改来。
+     2026-09-25 峰值收到 6.5%：text/subtle 落在色团中心时，8% 为 4.45:1，7% 为 4.53:1（余量太薄），6.5% 为 4.56:1 */
+  --wash-1: rgba(63,83,19,.065); --wash-1b: rgba(63,83,19,.03);
+  --wash-2: rgba(63,83,19,.065); --wash-2b: rgba(63,83,19,.03);
+  --wash-3: rgba(63,83,19,.06);  --wash-3b: rgba(63,83,19,.025);
+  --wash-stamp: rgba(63,83,19,.06); --wash-stamp-b: rgba(63,83,19,.025);   /* 指针晕开，09-23 随晕染色相改为 olive/900，2026-09-26 恢复 */
+  --brand-orange: #EF6905;   /* 字标 i 点与收尾标题的橙点。Figma 里是未绑变量的原色 */
+}
+@media screen and (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  color-scheme:dark;   /* 滚动条与表单控件跟着变深 */
+  --wash-1: rgba(159,171,74,.20);  --wash-1b: rgba(159,171,74,.09);   /* .22 时 text/muted 落在色团中心只有 4.47:1 */
+  --wash-2: rgba(127,139,46,.20);  --wash-2b: rgba(127,139,46,.08);
+  --wash-3: rgba(95,108,31,.26);   --wash-3b: rgba(95,108,31,.10);
+  --wash-stamp: rgba(178,189,76,.18); --wash-stamp-b: rgba(178,189,76,.07);
+} }
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --wash-1: rgba(159,171,74,.20);  --wash-1b: rgba(159,171,74,.09);   /* .22 时 text/muted 落在色团中心只有 4.47:1 */
+  --wash-2: rgba(127,139,46,.20);  --wash-2b: rgba(127,139,46,.08);
+  --wash-3: rgba(95,108,31,.26);   --wash-3b: rgba(95,108,31,.10);
+  --wash-stamp: rgba(178,189,76,.18); --wash-stamp-b: rgba(178,189,76,.07);
+}
+
+/* ══════════ 页面基座 ══════════ */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; text-size-adjust:100%}   /* iOS 横屏时不自动放大正文 */
+html{scrollbar-gutter:stable}   /* 常驻滚动条的系统上，打开菜单隐藏滚动条时版心不横移。scroll-behavior 保持默认 auto，页内跳转一帧到位（2026-09-25） */
+html,body{overflow-x:clip}
+body{margin:0; background:var(--bg-surface); color:var(--text-body);
+     font:400 var(--font-body)/var(--lh-body) var(--font-stack);
+     -webkit-font-smoothing:antialiased}
+img{max-width:100%; display:block}
+a{color:inherit}
+h1,h2,h3,h4,h5,h6,p,ul,ol,dl,dd,figure{margin:0}
+ul,ol{list-style:none; padding:0}
+.wrap{max-width:calc(var(--container-max) + var(--margin-x) * 2); margin:0 auto;
+      padding-inline:var(--margin-x)}
+:focus-visible{outline:2px solid var(--focus-ring); outline-offset:2px; border-radius:4px}
+[tabindex="-1"]:focus{outline:none}   /* 路由把焦点移到标题、区块或正文时不画框，它们本身不可点 */
+.skip{position:absolute; left:var(--space-16); top:-100px; z-index:300; padding:var(--space-8) var(--space-16);
+      min-height:44px; display:inline-flex; align-items:center;   /* 英文行高 26 加上下内距只有 42，补到 44（第 3 轮复核） */
+      background:var(--bg-canvas); color:var(--text-primary); border-radius:var(--radius-card)}
+.skip:focus{top:var(--space-16)}
+[id]{scroll-margin-top:calc(var(--nav-h) + env(safe-area-inset-top, 0px))}   /* 页脚的 naming 等锚点是 div，也要让开吸顶页眉 */
+/* 可聚焦的链接与按钮：Shift+Tab 倒序时浏览器把目标卷到视口顶边，会被吸顶页眉整个盖住（WCAG 2.4.11）。
+   :where 优先级为 0，带 id 的锚点照旧走上一条，页内跳转落点不变（第 3 轮复核） */
+:where(a[href], button, summary, [tabindex]:not([tabindex="-1"])){scroll-margin-top:calc(var(--nav-h) + env(safe-area-inset-top, 0px) + var(--space-16))}
+p, dd, li{text-wrap:pretty}   /* 段落与列表条目末行不落单个词（8.22），标题另有 balance。li 2026-09-30 补上：新页面大量用列表 */
+/* 中文条目：pretty 只管末行一个字的情形，仍会留下「風｜險」「節奏」这类一两个字的末行，还把词拆开。
+   列表条目与表格值多为一到三行，改用 balance 各行等长。text-wrap 会继承，只给里面没有段落或整块的条目加，
+   免得条目里的多行说明也被拉成等长；balance 超过六行浏览器不处理，长条目照常折行（第 1 轮复核） */
+html:lang(zh) main :is(li, dd):not(:has(p, div, dl, ul, ol, h2, h3, h4)){text-wrap:balance}
+/* balance 把行压短，又不认中文词界，会在「哪｜裏」「教｜別人」这类词中间断开。同一批条目与表格值（连同三栏表格内的值 .g3-cell > p）
+   只在「、，；」等标点与空格处折行，一段长过整行、找不到标点时才硬断（第 2 轮复核） */
+html:lang(zh) main :is(li, dd, .g3-cell > p):not(:has(p, div, dl, ul, ol, h2, h3, h4)){word-break:keep-all; overflow-wrap:anywhere}
+main :is(h2, h3, h4){text-wrap:balance}   /* 小标题（.t-label、.g3-title 等）末行不落单词（8.22、09-24）；.t-display 等大标题各自带 balance（第 2 轮复核补） */
+
+/* 文字样式，与 Figma Text styles 同名 */
+.t-eyebrow, .t-mono{font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+.t-mono-s{font:500 var(--font-small)/var(--lh-small) var(--font-stack-mono); color:var(--text-subtle)}
+.t-display{font:700 var(--font-display)/var(--lh-display) var(--font-stack-display); letter-spacing:-.02em; color:var(--brand-solid); text-wrap:balance}   /* balance：末行不落单词（8.22，第 1 轮复核补） */
+.t-h1{font:700 var(--font-h1)/var(--lh-h1) var(--font-stack-display); letter-spacing:-.02em; color:var(--text-primary); max-width:900px; text-wrap:balance}
+.t-h2{font:600 var(--font-h2)/var(--lh-h2) var(--font-stack-display); letter-spacing:-.02em; color:var(--text-primary); max-width:900px; text-wrap:balance}
+.t-h2-bold{font:700 var(--font-h2)/var(--lh-h2) var(--font-stack-display); letter-spacing:-.02em; color:var(--text-primary); text-wrap:balance}
+.t-h3{font:600 var(--font-h3)/var(--lh-h3) var(--font-stack); letter-spacing:-.02em; color:var(--text-primary)}
+.t-h4{font:600 var(--font-h4)/var(--lh-h4) var(--font-stack); letter-spacing:-.02em; color:var(--text-primary)}
+.t-lead{font:400 var(--font-body-l)/var(--lh-body-l) var(--font-stack); color:var(--text-muted); max-width:34em}
+.t-lead-body{font:400 var(--font-body-l)/var(--lh-body-l) var(--font-stack); color:var(--text-body); max-width:34em}
+.t-label{font:600 var(--font-body-l)/var(--lh-body-l) var(--font-stack); letter-spacing:-.01em; color:var(--text-primary)}
+.t-body{font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-body); max-width:34em}
+.t-body-muted{font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-muted); max-width:34em}
+.t-small{font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-body)}
+.t-caption{font:400 var(--font-caption)/var(--lh-caption) var(--font-stack); color:var(--text-muted)}
+.zh{font-family:var(--font-stack-hant)}
+.placeholder{color:var(--text-subtle)}
+.visually-hidden{position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden;
+                 clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0}
+.nowrap{white-space:nowrap}   /* 文案里不可拆开的简称，如「中五／六」：不让斜线落到行首（第 3 轮复核，写法见 content/README.md） */
+
+/* ══════════ 语言（2026-09-30 三语） ══════════ */
+/* 只用 :lang() 与变量，不改 tokens.css：<html lang> 定了，全页自动套用；页内夹一段别的语言（英文页脚的公司名、
+   简中页里按登记写的繁体公司名、语言切换的各项）按那一段自己的 lang 取字体。依据：三语技术方案 4.3、4.4，开工准备七之二。
+   字体栈西文在前、中文在后，繁简两套分开写。昭源黑體正式版自托管，族名 Chiron Hei HK；本机装的是可变字体，族名 Chiron Hei HK VF，
+   本地原型（build.py 默认 --fonts local）靠它，所以两个族名都写上。简中页不加载中文网页字体，用系统简体黑体。 */
+:root{
+  --font-family-hant-local: "Chiron Hei HK VF";
+  --font-family-hant-fallback: "PingFang HK", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "\5FAE\8EDF\6B63\9ED1\9AD4", "Noto Sans HK", "Noto Sans CJK TC";
+  --font-family-hans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC";
+  --font-stack-hant: var(--font-family-latin), var(--font-family-hant), var(--font-family-hant-local), var(--font-family-hant-fallback), ui-sans-serif, system-ui, sans-serif;
+  --font-stack-hans: "TOIVO Hans Punct", var(--font-family-latin), var(--font-family-hans), ui-sans-serif, system-ui, sans-serif;
+  --cjk-display-scale: .75;     /* 中文 display 取英文的 0.75 倍：桌面 54、笔记本 42、平板 36、手机 30（技术方案 4.3） */
+  --lh-cjk-heading: 1.3;        /* 西文标题的 1.04 到 1.19 是给拉丁字母定的，汉字满格，照用上下几乎相碰 */
+  --lh-cjk-body: 1.75;          /* 中文正文行高 1.6 到 1.8（开工准备七之二） */
+  --lh-cjk-small: 1.7;
+}
+/* 简中的弯引号、省略号、间隔号在 Onest 里是西文窄字形，这个别名只管这几个字，改由系统简体字体出全角 */
+@font-face{font-family:"TOIVO Hans Punct";
+  src:local("PingFang SC Regular"), local("PingFangSC-Regular"), local("Microsoft YaHei"), local("Noto Sans CJK SC Regular"), local("NotoSansCJKsc-Regular");
+  unicode-range:U+2018-2019, U+201C-201D, U+2026, U+00B7}
+html:lang(zh-Hant){
+  --font-stack: var(--font-stack-hant);
+  --font-stack-display: var(--font-family-display), var(--font-family-latin), var(--font-family-hant), var(--font-family-hant-local), var(--font-family-hant-fallback), ui-sans-serif, system-ui, sans-serif;
+  --font-stack-mono: var(--font-family-mono), var(--font-family-hant), var(--font-family-hant-local), var(--font-family-hant-fallback), ui-monospace, monospace;
+}
+html:lang(zh-Hans){
+  --font-stack: var(--font-stack-hans);
+  --font-stack-display: "TOIVO Hans Punct", var(--font-family-display), var(--font-family-latin), var(--font-family-hans), ui-sans-serif, system-ui, sans-serif;
+  --font-stack-mono: var(--font-family-mono), var(--font-family-hans), ui-monospace, monospace;
+}
+/* 页内夹的另一种中文按自己的 lang 取字体。只认 body 里显式写了 lang 的元素，<html lang> 本身不算，不会盖掉各样式自己的字族 */
+body [lang^="zh-Hant"]{font-family:var(--font-stack-hant)}
+body [lang^="zh-Hans"]{font-family:var(--font-stack-hans)}
+html:lang(zh){
+  text-autospace:normal;        /* 中西文之间自动留约 1/8 字宽；Chrome 默认如此，Firefox 默认不留，显式写上两边一致 */
+  text-spacing-trim:normal;     /* 相邻全角标点挤压（如 」， 连用） */
+}
+/* 标题：字距归零、行高 1.3，只在标点、空格与 <wbr> 处折行，不把「能力」拆在两行；长句由文案在词组之间写 <wbr> */
+html:lang(zh) :is(.t-display, .t-h1, .t-h2, .t-h2-bold, .t-h3, .t-h4){
+  letter-spacing:0; line-height:var(--lh-cjk-heading); word-break:keep-all; overflow-wrap:break-word; text-wrap:balance}
+/* 大字句（.statement 收句与使命句、首页收尾末行 .closing-end）视觉上相当于小标题，同样只在标点处折行，各行求平衡；
+   一段长过整行时才硬断（第 2 轮复核） */
+html:lang(zh) main :is(.statement, .closing-end){word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance}
+html:lang(zh) .t-display{font-size:calc(var(--font-display) * var(--cjk-display-scale))}
+/* 平板以上中文 display 不小于同档 h1：0.75 倍按旧的 600 宽两栏首屏定，现在首屏是单栏，笔记本 42、平板 36 会比内页页首 h1 还小。
+   改后桌面 54、笔记本 48、平板 40；手机保持 30，再大会折成四行（第 3 轮复核） */
+@media (min-width:768px){ html:lang(zh) .t-display{font-size:max(calc(var(--font-display) * var(--cjk-display-scale)), var(--font-h1))} }
+html:lang(zh) :is(.t-label, .menu-links a){letter-spacing:0}
+/* 正文与导语 */
+html:lang(zh) :is(body, .t-body, .t-body-muted, .t-lead, .t-lead-body, .legal p, .facts dd, .channel dd, .statement, .points > li, .questions > li){line-height:var(--lh-cjk-body)}
+html:lang(zh) :is(.t-small, .t-caption, .fcol a, .chain .s){line-height:var(--lh-cjk-small)}
+html:lang(zh) :is(.t-lead, .t-lead-body, .t-body, .t-body-muted){max-width:32em}   /* 一行约 32 个汉字；西文的 34em 按字母定 */
+/* 眉标、页脚组名与各表的标签：英文用大写等宽，中文落进 IBM Plex Mono 会被拉开字距，改回正文字族 14（Figma Small/Regular · zh） */
+html:lang(zh) :is(.t-eyebrow, .fcol h3, .foot-lang h3, .chain .k, .facts dt, .channel dt, .part-facts dt, .facts-note){
+  font-family:var(--font-stack); font-size:var(--font-small); line-height:var(--lh-small); font-weight:400; letter-spacing:.08em}   /* 中文网页字体只有 400、700 两档 */
+html:lang(zh) :is(.menu-btn, .menu-close){font-family:var(--font-stack); font-size:var(--font-small)}   /* 選單、關閉：等宽字没有中文 */
+.legal [lang|="zh"]{white-space:nowrap}   /* 公司中文名整名换行 */
+
+/* 状态章：浅彩底是在研发中，中性是构想与样例 */
+.chip{display:inline-flex; align-items:center; padding:var(--space-4) var(--space-8);
+      border-radius:var(--radius-chip); border:1px solid var(--border-strong); background:var(--bg-muted);
+      font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle);
+      white-space:nowrap}
+.chip-soft{background:var(--bg-soft); color:var(--text-on-soft); border-color:var(--border-soft)}
+
+/* 按钮 */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:var(--space-8);
+     text-decoration:none; border-radius:var(--radius-card); border:1px solid transparent; cursor:pointer;
+     font:500 var(--font-body)/var(--lh-body) var(--font-stack);
+     padding:calc(var(--space-16) - 1px) calc(var(--space-24) - 1px); white-space:nowrap}   /* 边框 1px 算进内距，尺寸与 Figma 一致。
+     悬停时颜色即时切换。全站不设 transition；animation 只用于首页的指针晕开，晕染位移与页眉字标收起由 site.js 逐帧写（2026-09-26） */
+.btn-primary{background:var(--brand-solid); color:var(--text-on-brand-solid)}
+.btn-primary:hover{background:var(--brand-hover)}
+.btn-secondary{background:var(--bg-canvas); color:var(--text-body); border-color:var(--border-strong);
+               padding:calc(var(--space-12) - 1px) calc(var(--space-24) - 1px)}
+.btn-secondary:hover{color:var(--text-primary); border-color:var(--text-subtle)}
+.btn-ghost{background:none; color:var(--text-body)}
+.btn-ghost:hover{color:var(--text-primary); text-decoration:underline; text-underline-offset:4px}
+.btn-sm{font:500 var(--font-small)/var(--lh-small) var(--font-stack); padding:calc(var(--space-8) - 1px) calc(var(--space-16) - 1px)}
+
+/* 字标：字母随主题取 brand/solid，i 点固定品牌橙 */
+.wordmark{display:inline-flex; color:var(--brand-solid); text-decoration:none; line-height:0}
+.wordmark svg{width:108px; height:auto; display:block}
+.wordmark .dot{fill:var(--brand-orange)}
+/* 页眉字标收起：页面离开顶部即收成圖形標誌，回到顶部展开（触发照 anthropic.com）。动作照品牌预览模板 preview-template.html
+   （2026-09-21）「從標誌到名字」一段，由 site.js 逐帧驱动：横笔从左端伸缩，橙点在 t 旁与 i 上方之间走弧线，o、i、v、o 错开淡入淡出。
+   橙点走弧线时最高处拱出字标上沿约 9.5 个单位（弧高 13.21 是相对直线路径，终点 i 点本身在上沿下 0.49），页眉与菜单顶行的字标 SVG 放开溢出（页眉上方留白足够）；打印一律印完整字标 */
+.nav-in .wordmark svg, .menu-top .wordmark svg{overflow:visible}
+
+/* ══════════ 吸顶页眉 ══════════ */
+/* 字标在左，链接、语言切换、按钮一组靠右，按钮右缘对齐版心 */
+.nav{position:sticky; top:env(safe-area-inset-top, 0px); z-index:100;   /* 刘海屏上贴在状态栏下面，其余情况为 0 */
+     height:var(--nav-h);
+     background:var(--bg-surface); border-bottom:1px solid var(--border-subtle)}
+.nav-in{height:100%; max-width:calc(var(--container-max) + var(--margin-x) * 2); margin:0 auto;
+        padding-inline:var(--margin-x); display:flex; align-items:center; gap:var(--space-48)}
+.nav .wordmark{margin-right:auto}
+.nav-links{display:flex; gap:var(--space-32); align-items:center}
+.nav-links a{position:relative; font:400 var(--font-body)/var(--lh-body) var(--font-stack);
+             color:var(--text-muted); text-decoration:none; padding-block:9px}   /* 上下各 9，点击区 44（2026-09-30），字的位置不变 */
+/* 下划线绝对定位在文字下方 8px，不占布局，切换当前页时文字不位移。链接盒上下各多 9，下划线由 100% + 8 改为 100% - 1，离字仍是 8 */
+.nav-links a::after{content:""; position:absolute; left:0; right:0; top:calc(100% - 1px);
+                    height:2px; background:transparent}
+.nav-links a:hover{color:var(--text-primary)}
+.nav-links a:hover::after{height:1px; background:var(--border-strong)}
+.nav-links a[aria-current="page"]{color:var(--text-primary)}
+.nav-links a[aria-current="page"]::after{height:2px; background:var(--brand-solid)}
+.actions{display:flex; align-items:center; gap:var(--space-16)}
+.lang{display:flex; align-items:center; font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-subtle)}
+.lang > span{display:inline-flex; align-items:center; min-height:44px}
+/* 三语切换（2026-09-30）：繁中／简中／EN，每项用自己的文字与字体（值里带 span lang）。当前语言不做链接、加粗、标 aria-current；
+   另两项链到同一页的另一语言版。每项点击区 44×44，字在框内居中 */
+.lang .opt{display:inline-flex; align-items:center; justify-content:center; min-height:44px; min-width:44px; padding-inline:var(--space-8)}
+.lang a.opt{color:var(--text-muted); text-decoration:none}
+.lang a.opt:hover{color:var(--text-primary); text-decoration:underline; text-underline-offset:3px}
+.lang .on{font-weight:700; color:var(--text-primary)}
+.lang .sep{color:var(--text-subtle)}
+.lang .zh{font-family:var(--font-stack-hant)}
+.nav .wordmark{min-height:44px; align-items:center}   /* 点击区 44 高，与 Figma 的 Logo / Home 框一致 */
+/* MENU 与 CLOSE 是同一个描边按钮，同一个位置：1023 以下出现，打开菜单时手指不用挪。
+   看得见的框手机 40 高，::after 把点击区撑到 44；平板与页眉按钮同为 50 高 */
+.menu-btn, .menu-close{position:relative; display:none; align-items:center; justify-content:center; gap:var(--space-8);
+          min-width:88px; height:40px; padding:0 var(--space-12); cursor:pointer;
+          background:var(--bg-canvas); border:1px solid var(--border-strong); border-radius:var(--radius-card);
+          font:500 var(--font-caption)/1 var(--font-stack-mono); color:var(--text-primary)}
+.menu-btn::after, .menu-close::after{content:""; position:absolute; inset:-3px -1px}
+.menu-btn:hover, .menu-close:hover{border-color:var(--text-subtle)}
+.menu-btn .ic{width:14px; height:7px}
+.menu-close .ic{width:10px; height:10px}
+
+/* 满屏菜单，取 Figma Menu · 768 与 Menu · 390。顶行高度与页眉相同，打开时字标不跳位。
+   菜单是原生 popover（2026-09-25）：没有脚本也能开关。宽高、外边距、边框与字色抹掉浏览器给 popover 的默认框 */
+.menu{position:fixed; inset:0; z-index:200; overflow-y:auto; background:var(--bg-surface); color:var(--text-body);
+      width:auto; height:auto; max-width:none; max-height:none; margin:0; border:0;
+      display:none; flex-direction:column; gap:var(--space-40);
+      padding:env(safe-area-inset-top, 0px) max(var(--margin-x), calc((100% - var(--container-max)) / 2))
+              calc(var(--space-48) + env(safe-area-inset-bottom, 0px))}   /* 与页眉同一版心，打开时字标不横跳；上下让开刘海与底部横条 */
+/* 只在打开时显示。两条分开写：旧浏览器不认 :popover-open，第一条整条失效，菜单保持隐藏，脚本改用 is-open 类 */
+.menu:popover-open{display:flex}
+.menu.is-open{display:flex}
+.menu-top{flex:0 0 auto; height:calc(var(--nav-h) - 1px);   /* 页眉底线占 1px */
+           display:flex; align-items:center; justify-content:space-between}
+.menu-top .wordmark{min-height:44px; align-items:center}
+.menu-close{display:inline-flex}
+.menu-links{display:flex; flex-direction:column}
+.menu-links a{display:flex; align-items:center; min-height:44px; padding-block:var(--space-8); text-decoration:none;
+              font:600 var(--font-h3)/var(--lh-h3) var(--font-stack); letter-spacing:-.02em; color:var(--text-primary)}
+.menu-links a[aria-current="page"]{text-decoration:underline; text-decoration-thickness:2px;
+              text-underline-offset:8px; text-decoration-color:var(--brand-solid)}
+.menu .lang{align-self:flex-start; margin-left:calc(-1 * var(--space-8))}   /* EN 与链接左缘对齐 */
+.menu-cta{width:100%}
+html.menu-open{overflow:hidden}
+
+/* ══════════ 晕染 ══════════ */
+.site{position:relative; overflow-x:clip}   /* 晕染左右各伸出 40px，在这里裁掉，页面不出横向滚动 */
+/* 晕染是定位元素、z-index:0，内容区块要自己抬到上层，否则会被盖住 */
+.site > main, .site > section, .site > footer{position:relative; z-index:1}
+.wash{position:absolute; left:-40px; right:-40px; top:0; height:var(--wash-h,2400px);
+      z-index:0; pointer-events:none; overflow:hidden;
+      -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 260px),transparent 100%);
+      mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 260px),transparent 100%)}
+.blob{position:absolute; width:900px; height:900px; border-radius:50%; will-change:transform;
+      background:radial-gradient(circle, var(--wash-1) 0%, var(--wash-1b) 38%, transparent 68%)}
+/* 晕染层从页眉下沿量到 Evidence 色带顶。色团纵向按这段高度的百分比定，b4 贴着底部定，任何宽度都铺到 What we do 段末，
+   再由底部 260px 遮罩淡出。原先写死 -320、520、1500px，是 09-06 对照页的数值；09-17 The Loop 平铺后首页长了一屏半，
+   三团在 The Loop 末尾就全部离场。晕染层高到 4600 以上（约 1090 宽以下），b3 与 b4 之间会空出一大段，
+   site.js 给晕染层加 wash-tall，多一团 b5 放在两者正中。
+   相邻两团的中心区互不相叠：浅色 text/subtle 落在单团中心只剩 4.56:1，中心区相叠就会跌破 4.5:1。外缘少量相叠处两团各约 2%，无碍 */
+.b1{left:62%; top:-320px; transform:translate(calc(var(--p,0) * -160px), calc(var(--p,0) * 520px))}
+.b2{left:-380px; top:14%; width:760px; height:760px;
+    background:radial-gradient(circle, var(--wash-2) 0%, var(--wash-2b) 40%, transparent 68%);
+    transform:translate(calc(var(--p,0) * 220px), calc(var(--p,0) * 420px))}
+.b3{left:38%; top:40%; width:1100px; height:1100px;
+    background:radial-gradient(circle, var(--wash-3) 0%, var(--wash-3b) 42%, transparent 70%);
+    transform:translate(calc(var(--p,0) * -120px), calc(var(--p,0) * -260px))}
+.b4{left:-240px; top:calc(100% - 1150px); width:1000px; height:1000px;
+    background:radial-gradient(circle, var(--wash-2) 0%, var(--wash-2b) 40%, transparent 68%);
+    transform:translate(calc(var(--p,0) * 160px), calc(var(--p,0) * -100px))}
+.b5{display:none; left:calc(100% - 640px); top:calc(70% - 520px); width:1000px; height:1000px;
+    background:radial-gradient(circle, var(--wash-3) 0%, var(--wash-3b) 42%, transparent 70%);
+    transform:translate(calc(var(--p,0) * -120px), calc(var(--p,0) * -160px))}
+.wash-tall .b5{display:block}
+/* 指针晕开：鼠标经过处每 80ms 放一团，3.2 秒内放大并散去。09-06 采纳，09-25 撤，2026-09-26 Cindy 改回原版。
+   晕团叠在文字上会暂时压低对比度：慢速划过时晕团越叠越浓，落在色团中心的深色正文约 1.9:1、浅色小灰字约 1.8:1（按动画逐帧推算，见 MOTION.md），
+   读者挪开鼠标后几秒内恢复；Legal 无障碍声明写明这一点 */
+.stamp{position:absolute; width:300px; height:300px; margin:-150px 0 0 -150px; border-radius:50%;
+       pointer-events:none;
+       background:radial-gradient(circle, var(--wash-stamp) 0%, var(--wash-stamp-b) 40%, transparent 70%);
+       animation:bleed 3.2s ease-out forwards}
+@keyframes bleed{0%{opacity:0; transform:scale(.35)} 20%{opacity:1} 100%{opacity:0; transform:scale(1.4)}}
+
+/* ══════════ 区块通用 ══════════ */
+.sec{padding-block:var(--pt, var(--section-y)) var(--pb, var(--section-y))}
+.sec > .wrap{display:flex; flex-direction:column; gap:var(--gap, var(--space-24))}
+.head-block{display:flex; flex-direction:column; gap:var(--space-16)}
+/* 行式表：上边线分隔，首行无线 */
+.rows > *{border-top:1px solid var(--border-hairline)}
+.rows > :first-child{border-top:0}
+.rows.all-lines > :first-child{border-top:1px solid var(--border-hairline)}
+/* 深色档 hairline 与页面底色同为 warm-grey-800，线会消失，行式表改用 subtle */
+@media screen and (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .rows > *{border-top-color:var(--border-subtle)} }
+:root[data-theme="dark"] .rows > *{border-top-color:var(--border-subtle)}
+
+/* ══════════ 首屏 ══════════ */
+.hero{padding-block:var(--space-96) var(--space-80)}
+.hero-in{display:grid; grid-template-columns:minmax(0,600px) 520px; gap:var(--space-80);
+         justify-content:space-between; align-items:start}
+.hero-copy{display:flex; flex-direction:column; gap:var(--space-24); min-width:0}
+.cta-row{display:flex; flex-wrap:wrap; gap:var(--space-12); padding-top:var(--space-8)}
+
+.card{background:var(--bg-canvas); border:1px solid var(--border-subtle); border-radius:var(--radius-card); overflow:hidden}
+/* 2026-09-30 第 1 轮复核：旧首页的样例卡（卡头、卡身、卡底、brief-fields）、The Loop 五步与四个产品（.products、.prod、.naming、.lrow）
+   随三语改版撤下（拍板 3），规则一并删掉。旧 .products 是纵向 flex，套到新首页同名区块上，把版心缩成内容宽并居中，左缘与上下各段对不齐。
+   旧规则要追溯，看 _archive-2026-09-30/README.md 所记的提交 */
+
+/* ══════════ Evidence ══════════ */
+/* 锚点落点：按批注撑满一屏，内容纵向居中 */
+.evidence{background:var(--bg-soft); --gap:var(--space-40);
+          min-height:calc(100vh - var(--nav-h)); display:flex; align-items:center}
+.evidence > .wrap{width:100%}
+.chain > div{display:grid; grid-template-columns:130px 340px minmax(0,1fr); gap:var(--space-32);
+             align-items:center; padding-block:var(--space-16); border-top:1px solid var(--border-soft)}
+.chain > div:first-child{border-top:0}
+.chain .k{font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+.chain .v{font:500 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-primary)}
+.chain a.v{text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px}
+.chain a.v:hover{text-decoration-thickness:2px}
+.chain a.v{justify-self:start}   /* 44 点击区见共用组件「值链接点击区」 */
+.chain .s{font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-muted)}
+
+/* ══════════ 收尾 ══════════ */
+.closing{background:var(--brand-solid); padding-block:var(--space-64)}
+.closing .wrap{display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-24)}
+.closing .t-h2-bold{color:var(--text-on-brand-solid)}
+/* 收尾块底色与 focus-ring 同为 olive/900，焦点框改用标题的白色。写成 --focus-ring 覆盖会输给 tokens.css 的 [data-theme="light"] */
+.closing :focus-visible{outline-color:var(--text-on-brand-solid)}
+/* i 点换成品牌橙：用无点 ı 加伪元素画方点，读屏走 aria-label 里的原文 */
+.idot{position:relative}
+/* 点的中心对准 Figma 1440 稿：基线上方 .631em，与 Gabarito 自带 i 点的中心（.61em）几乎重合。
+   top 从字体行框顶算起，Gabarito 行框顶在基线上方 .9em，所以 top = .9 - (.631 + .097) = .172em。
+   原先的 .02em 是给 Onest 调的，09-23 标题换成 Gabarito 后点飘到大写字母顶线上方 */
+.idot::before{content:""; position:absolute; left:50%; top:.172em; width:.194em; height:.194em;
+              transform:translateX(-50%); background:var(--brand-orange); border-radius:2px;
+              -webkit-print-color-adjust:exact; print-color-adjust:exact}   /* 打印默认不印背景，不加这句 i 点会丢 */
+
+/* 可打印的素档区块（Contact、Legal、About 公司资料与团队、页脚）所有文字不低于 7:1：标签与元信息的 text/subtle 在这里换成 text/muted。
+   浅色 subtle 在底色上只有 5.03:1，muted 为 7.75:1；深色两者同为 warm-grey/300，不受影响（2026-09-25，兑现 Legal 无障碍声明的 7:1） */
+.ct-channels, .lg, .ab-facts, .ab-team, .foot, .evidence{--text-subtle:var(--text-muted)}   /* 2026-09-30 加首页现况色带 .evidence（三语页面架构 4.1）；内页页首 .page-head 由素档页各自覆盖 */
+
+/* ══════════ 页脚 ══════════ */
+.foot{background:var(--bg-surface); padding-block:var(--space-80) var(--space-32)}
+.foot .wrap{display:flex; flex-direction:column; gap:var(--space-40)}
+.foot .wordmark{align-self:flex-start; min-height:44px; align-items:center}   /* 点击区 44，各档一致（2026-09-30，原先只在 1023 以下） */
+/* 2026-09-30 三语：四组链接一行四栏（合作对象、TOIVO、联络、法律信息），语言单独一行，再下面是法定区（三语页面架构 5.4）。
+   链接点击框各档都不小于 32 高、44 宽：桌面由原先文字 21 加间距 8 改为框 32、间距 0，行距 29 变 32 */
+.foot-cols{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--space-64)}
+.fcol{display:flex; flex-direction:column; gap:0}
+.fcol h3, .foot-lang h3{font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle); margin-bottom:var(--space-8)}
+.fcol a{display:flex; align-items:center; min-height:var(--space-32); min-width:44px;
+        font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-body); text-decoration:none; align-self:flex-start}
+.fcol a:hover, .foot-lang a:hover{color:var(--text-primary); text-decoration:underline; text-underline-offset:3px}
+/* 语言行：组名在左，三种语言写全称，当前语言加粗不做链接 */
+.foot-lang{display:flex; flex-wrap:wrap; align-items:center; column-gap:var(--space-24)}
+.foot-lang h3{margin:0 var(--space-8) 0 0}
+.foot-lang a, .foot-lang .on{display:inline-flex; align-items:center; justify-content:center; min-height:var(--space-32); min-width:44px;
+        font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-body); text-decoration:none}
+.foot-lang .on{font-weight:700; color:var(--text-primary)}
+.legal{padding-top:var(--space-32); border-top:1px solid var(--border-subtle);
+       display:flex; flex-direction:column; gap:var(--space-8)}
+.legal p{font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-body); max-width:34em}
+.legal p:first-child{font-weight:600; color:var(--text-primary)}
+
+/* ══════════ About ══════════ */
+/* 各段上下内距在 css/page-about.css（三语版节奏）；这里只放资料表与团队卡 */
+.facts > div{display:grid; grid-template-columns:280px minmax(0,1fr); gap:var(--space-32);
+             align-items:center; padding-block:var(--space-16)}
+.facts dt{font:500 var(--font-small)/var(--lh-small) var(--font-stack-mono); color:var(--text-subtle)}
+.facts dd{font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-body); max-width:34em}
+.facts-note{font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-muted)}
+.people{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-16)}
+.person{display:flex; gap:var(--space-16); align-items:flex-start;
+        background:var(--bg-canvas); border:1px solid var(--border-subtle);
+        border-radius:var(--radius-card); padding:var(--space-24)}
+.portrait{flex:0 0 140px; width:140px; height:175px; border-radius:var(--radius-card);
+          overflow:hidden; background:var(--bg-muted); position:relative}
+.portrait img{width:100%; height:100%; object-fit:cover; display:block}
+/* 还没有照片的头像画一个不带字的剪影（头与肩两个椭圆，按头像框的百分比定，各档同比缩放）。
+   原先用 CSS 写英文 PORTRAIT，中文页也会冒出来；2026-09-30 由 css/page-about.css 提上来 */
+.portrait.empty::after{content:""; position:absolute; inset:0;
+  background:radial-gradient(ellipse 16% 12.8% at 50% 40%, var(--border-strong) 98%, transparent 100%),
+             radial-gradient(ellipse 38% 30% at 50% 100%, var(--border-strong) 98%, transparent 100%)}
+.person .txt{display:flex; flex-direction:column; min-width:0; flex:1; padding-top:var(--space-16)}
+.person .name{font:600 var(--font-body-l)/var(--lh-body-l) var(--font-stack); letter-spacing:-.01em; color:var(--text-primary)}
+.person .role{font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-muted); margin-top:5px}
+.person .city{font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-subtle); margin-top:3px}
+
+/* ══════════ What we do ══════════ */
+/* 三部分（.part）与四个能力范畴（.dom）沿用；旧页的 Who does what、六阶与各段留白随三语改版撤下（2026-09-30） */
+.part{display:grid; grid-template-columns:380px 756px; justify-content:space-between; gap:var(--space-64);
+      padding-block:var(--space-48); border-top:1px solid var(--border-subtle)}
+.part:first-child{border-top:0}
+.part .title{display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-12)}
+.part .detail{display:flex; flex-direction:column; gap:var(--space-24)}
+.part-facts > div{display:grid; grid-template-columns:130px minmax(0,476px); gap:var(--space-24);
+                  align-items:center; padding-block:var(--space-12)}
+.part-facts dt{font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+.part-facts dd{font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-body)}
+.dom-cols{padding:0 0 var(--space-12) 780px}
+.dom{display:grid; grid-template-columns:280px 420px minmax(0,1fr); gap:var(--space-40);
+     padding-block:var(--space-24); border-top:1px solid var(--border-subtle)}
+.dom .shows{font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-muted)}
+/* ══════════ Contact ══════════ */
+/* 三栏紧跟页首导语，没有自己的标题，与页首读作一组：离导语桌面与平板 64、手机 40（2026-09-30 由 css/page-contact.css 提上来，原为 96） */
+.ct-channels{--pt:var(--space-64); --pb:0px}
+.channels{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-48); align-items:start}
+.channel, .channel dl{display:flex; flex-direction:column; gap:var(--space-16)}
+.channel dl > div{display:flex; flex-direction:column; gap:var(--space-4)}
+.channel dt{font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+.channel dd{font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-body)}
+.link{text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px}
+
+/* ══════════ 法务 ══════════ */
+.lg{--pt:var(--space-96); --pb:var(--space-96); --gap:0}
+.lg .head-block{padding-bottom:var(--space-40)}
+/* 兄弟页链接，也作 Responsible AI 与合作伙伴页首的页内跳转行。点击框各档不小于 44 宽：左右各借 8（内距 8 配负外距 8，文字位置不动），
+   两个字的「大學」28 宽补到 44；高度桌面 32、平板 44、手机 32（见各档）。桌面用负的上下外距把 32 高的框收回一行字高，行仍按 21 排，
+   框伸进上下留白，碰不到别的可点元素（2026-09-30 由法务、Responsible AI、合作伙伴三页的同一写法合并） */
+.siblings{display:flex; flex-wrap:wrap; gap:var(--space-24); padding-bottom:var(--space-40)}
+.siblings a{display:inline-flex; align-items:center; justify-content:center; padding-inline:var(--space-8); margin-inline:calc(-1 * var(--space-8));
+            font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-muted); text-decoration:none}
+@media (min-width:1024px){
+  .siblings a{min-height:var(--space-32); margin-block:calc((var(--lh-small) - var(--space-32)) / 2)}
+}
+.siblings a:hover{color:var(--text-primary)}
+.siblings a[aria-current="page"]{color:var(--text-primary); font-weight:600}
+.prose{display:flex; flex-direction:column; gap:var(--space-8)}
+.prose + .prose{margin-top:var(--space-32)}
+/* 法务正文里的行内链接（邮箱与两处 Contact）：上下内距 2 把点击高从 21 撑到 25（≥ 24），行内元素的上下内距不占行高，版面不动。
+   左右各借 2，横向净宽为 0，断行不变；焦点框外扩 0，四边离自身字形约 2，不压上下行的字。两条必须一起带上，只带一条焦点框就会贴字。
+   句中链接做不到 44，按 2.5.8 的行内豁免处理。原先只在手机档，2026-09-30 起各档都这样 */
+.prose a{text-underline-offset:3px; padding-block:var(--space-2); padding-inline:var(--space-2); margin-inline:calc(-1 * var(--space-2))}
+.prose a:focus-visible{outline-offset:0}
+.lg + .lg{border-top:1px solid var(--border-subtle)}
+
+/* ══════════ 三语改版新增的共用组件（2026-09-30） ══════════ */
+/* 依据三语页面架构第四节。两页以上会用到的放这里，只有一页用的放该页的 css/page-<页>.css。
+   胆量档：半自由档圆角 8，素档零圆角；素档区块的标签与元信息 7:1 靠上面那组 --text-subtle 覆盖。
+   手机档照 8.29：区块上内距 section-y、下内距 0；组件内部降一档；列表首项上内距、末项下内距归零；点击目标 44。 */
+
+/* 页首：内页第一个区块。标题离页眉桌面 96、手机 40，下内距交给下一段 */
+.page-head{--pt:var(--space-96); --pb:0px}
+
+/* 末段到页脚（2026-09-30 第 1 轮复核统一；原先各页各写一套：0、section-y 减 80、section-y，页尾到页脚 84 到 225 不等）。
+   768 以上末段下内距取 section-y，加上页脚自带的上内距 80，末段到页脚字标桌面约 200、平板约 176，与旧英文站和法务页一致。
+   页脚上方没有分隔线，距离小了页脚会读成正文的一部分。手机页脚上内距已是 section-y，末段下内距照 8.29 取 0。
+   首页末块是收尾色带 .closing，没有 .sec 类，不受影响。各页样式别再另写末段下内距 */
+main > .sec:last-child{--pb:var(--section-y)}
+@media (max-width:767px){
+  main > .sec:last-child{--pb:0px}
+}
+
+/* 要点列表：短句一条一行，方块点用品牌色；.points-2 条目短时排两列。Responsible AI 等素档页用时去掉方块的色即可 */
+.points{display:grid; grid-template-columns:minmax(0,1fr); column-gap:var(--space-48)}
+.points-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.points > li{position:relative; padding:var(--space-16) 0 var(--space-16) var(--space-24); border-top:1px solid var(--border-subtle);
+             font:400 var(--font-body-l)/var(--lh-body-l) var(--font-stack); color:var(--text-body)}
+.points > li::before{content:""; position:absolute; left:0; top:calc(var(--space-16) + .5lh - 4px); width:8px; height:8px;
+                     border-radius:1px; background:var(--brand-solid)}
+
+/* 大字导语：一段收句或结论，正文之上、标题之下的一档 */
+.statement{font:500 var(--font-h4)/1.45 var(--font-stack); color:var(--text-primary); max-width:36em; text-wrap:pretty}
+
+/* 流程链：节点横排，<ol> 语义，节点之间画箭头（用边框画，读屏不念）。放不下就折行。
+   箭头画在每个节点的左边（第二个起），整条链裁掉左缘以外：折到下一行行首的那个箭头落在框外被裁掉，行尾也不会挂箭头。
+   .flow 小号（正文字号）用在表格与段落旁；.flow-lg 大号作方法图解（h3 字号、bg/soft 底），手机改竖排。
+   节点间距用 --flow-gap 调（默认 32）。.flow-next 写在链后的去向（如「之後：機會」），不算一步 */
+.flow{--flow-gap:var(--space-32); display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-8) var(--flow-gap); overflow:hidden}
+.flow > li{position:relative; display:inline-flex; align-items:center; min-height:36px; padding:calc(var(--space-4) - 1px) calc(var(--space-12) - 1px);
+           border:1px solid var(--border-soft); border-radius:var(--radius-card); background:var(--bg-soft); color:var(--text-on-soft);   /* 描边与 .chip-soft 同：深色档 bg/soft 与卡片同色，靠描边分出节点 */
+           font:500 var(--font-body)/var(--lh-body) var(--font-stack)}
+.flow > li + li::before{content:""; position:absolute; top:50%; left:calc(-1 * var(--flow-gap) / 2 - 4px);
+           width:6px; height:6px; border-top:1.5px solid var(--text-subtle); border-right:1.5px solid var(--text-subtle);
+           transform:translateY(-50%) rotate(45deg)}
+.flow-lg{--flow-gap:var(--space-40); row-gap:var(--space-12)}
+.flow-lg > li{min-height:0; padding:calc(var(--space-8) - 1px) calc(var(--space-16) - 1px); font:600 var(--font-h3)/var(--lh-h3) var(--font-stack); letter-spacing:-.02em}
+.flow-lg > li + li::before{width:8px; height:8px; border-width:2px; left:calc(-1 * var(--flow-gap) / 2 - 5px)}
+html:lang(zh) .flow-lg > li{letter-spacing:0}
+.flow-next{display:inline-flex; align-items:center; gap:var(--space-8); font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-muted)}
+
+/* 受众入口列表：每条一行，对象在左、一句在右，整行是链接，行尾箭头。收尾色带里用 .entries-inverse（反白、两栏） */
+.entries{border-top:1px solid var(--border-subtle)}
+.entries > li{border-bottom:1px solid var(--border-subtle)}
+.entries a{position:relative; display:flex; align-items:baseline; gap:var(--space-8) var(--space-32); min-height:44px;
+           padding:var(--space-24) var(--space-48) var(--space-24) 0; color:var(--text-body); text-decoration:none}
+.entries a::after{content:""; position:absolute; right:var(--space-8); top:50%; width:9px; height:9px;
+           border-top:1.5px solid currentColor; border-right:1.5px solid currentColor; transform:translateY(-50%) rotate(45deg)}
+.entry-label{flex:0 0 min(280px, 40%); font:600 var(--font-body-l)/var(--lh-body-l) var(--font-stack); letter-spacing:-.01em; color:var(--text-primary)}
+.entry-label:only-child{flex:1 1 auto}
+.entry-text{flex:1 1 0; font:400 var(--font-body-l)/var(--lh-body-l) var(--font-stack); color:var(--text-muted)}
+.entries a:hover .entry-label{text-decoration:underline; text-underline-offset:4px; text-decoration-thickness:1px}
+.entries-inverse{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:var(--space-48); border-top-color:var(--olive-700)}
+.entries-inverse > li{border-bottom-color:var(--olive-700)}
+.entries-inverse a{padding-block:var(--space-16); color:var(--text-on-brand-solid)}
+.entries-inverse .entry-label{color:var(--text-on-brand-solid); font-weight:500}
+.entries-inverse a:focus-visible{outline-color:var(--text-on-brand-solid)}
+html:lang(zh) :is(.entry-label, .entry-text){letter-spacing:0; line-height:var(--lh-cjk-body)}
+
+/* 问题列表：导语字号，一列，行与行之间细线 */
+.questions > li{padding-block:var(--space-16); border-top:1px solid var(--border-subtle); max-width:40em;
+                font:400 var(--font-body-l)/var(--lh-body-l) var(--font-stack); color:var(--text-body)}
+.questions > li:first-child{border-top:0}
+
+/* 两栏对照表：左栏名、右栏说明，行式。<dl class="pairs"><div><dt>…</dt><dd>…</dd></div></dl> */
+.pairs > div{display:grid; grid-template-columns:minmax(0,280px) minmax(0,1fr); gap:var(--space-8) var(--space-32);
+             padding-block:var(--space-16); border-top:1px solid var(--border-subtle)}
+.pairs > div:first-child{border-top:0}
+.pairs dt{font:600 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-primary)}
+.pairs dd{font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-body); max-width:40em}
+html:lang(zh) .pairs :is(dt, dd){line-height:var(--lh-cjk-body)}
+
+/* 表格列头：一行小字，下接 strong 线，aria-hidden（读屏跳过，靠每格自带的小标签与 dt）。.grid3-head 与 .cols-head 同一个样子；
+   .pairs-head 是两栏对照表 .pairs 的列头，两栏与 .pairs 同宽。手机档列头不出。
+   2026-09-30 由我們做甚麼（科学原则表）与合作伙伴（回报表、流程）两页的同一写法合并 */
+.grid3-head, .cols-head{display:grid; padding-bottom:var(--space-12); border-bottom:1px solid var(--border-strong);
+            font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+.cols-head{gap:var(--space-8) var(--space-32)}
+.pairs-head{grid-template-columns:minmax(0,280px) minmax(0,1fr)}
+html:lang(zh) :is(.grid3-head, .cols-head){font-family:var(--font-stack); font-size:var(--font-small); line-height:var(--lh-small); font-weight:400; letter-spacing:.08em}
+
+/* 三栏对照表：列头一行（aria-hidden，读屏跳过），每行第一格是标题，另两格各带一个写在 HTML 里的小标签。
+   桌面小标签只给读屏（.g3-label 视觉隐藏），手机列头不出、小标签贴着内容显示。
+   <div class="grid3"><div class="grid3-head" aria-hidden="true"><span>…</span>×3</div>
+     <div class="grid3-row"><h3 class="g3-title">…</h3><div class="g3-cell"><span class="g3-label">…</span><p>…</p></div>×2</div></div> */
+.grid3-head, .grid3-row{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) minmax(0,1.4fr); gap:var(--space-8) var(--space-32)}
+.grid3-row{padding-block:var(--space-16); border-bottom:1px solid var(--border-subtle)}
+.g3-title{font:600 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-primary)}
+.g3-cell p{font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-body)}
+.g3-label{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap}
+html:lang(zh) :is(.g3-title, .g3-cell p){line-height:var(--lh-cjk-body)}
+
+/* 文字链接加箭头：卡片末尾「看全文」一类。单行时上下各 9，点击区 44 高。
+   行内块写法：链接文字折成两行时（窄栏里的英文），箭头跟在最后一个词后面；原先是 flex，箭头会被推到栏的最右边。
+   两行求平衡，末行留得出箭头的位置（2026-09-30 由我們做甚麼页提上来） */
+.more{display:inline-block; align-self:flex-start; padding-block:calc((44px - var(--lh-body)) / 2); text-wrap:balance;
+      font:500 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-primary);
+      text-decoration:underline; text-underline-offset:4px; text-decoration-thickness:1px}
+.more::after{content:""; display:inline-block; width:7px; height:7px; margin-left:var(--space-12); vertical-align:middle;
+             border-top:1.5px solid currentColor; border-right:1.5px solid currentColor; transform:translateY(-1px) rotate(45deg)}
+.more:hover{text-decoration-thickness:2px}
+
+/* 值链接点击区：邮箱、现况值一类只占一行字的链接，链接盒只有一行字高，44 高的点击区由伪元素上下撑出，版面不动。
+   用在首页现况（.chain a.v）、联络页邮箱与 404 返回首页（.tap-area） */
+.tap-area, .chain a.v{position:relative}
+.tap-area::after, .chain a.v::after{content:""; position:absolute; left:0; right:0; top:50%; height:44px; transform:translateY(-50%)}
+
+@media (max-width:1023px){
+  .points-2{column-gap:var(--space-32)}
+  .grid3-head, .grid3-row{gap:var(--space-8) var(--space-24)}
+}
+@media (max-width:767px){
+  .page-head{--pt:var(--space-40); --pb:0px}
+  .points, .points-2{grid-template-columns:minmax(0,1fr)}
+  .points > li{padding-block:var(--space-12)}
+  .points > li::before{top:calc(var(--space-12) + .5lh - 4px)}
+  .statement{font-size:var(--font-body-l); line-height:1.5}
+  /* 大号流程链竖排：一步一行，箭头朝下 */
+  .flow-lg{flex-direction:column; align-items:flex-start; gap:var(--space-24)}
+  .flow-lg > li{font-size:var(--font-h4); line-height:var(--lh-h4); padding:var(--space-8) var(--space-12)}
+  .flow-lg > li + li::before{top:-17px; left:var(--space-24); transform:rotate(135deg)}
+  .entries a{flex-direction:column; gap:var(--space-4); padding-block:var(--space-16); padding-right:var(--space-32)}
+  .entries a::after{right:var(--space-4)}
+  .entry-label{flex:none}
+  .entries-inverse{grid-template-columns:minmax(0,1fr)}
+  .entries-inverse a{padding-block:var(--space-12)}
+  .questions > li{padding-block:var(--space-12)}
+  .questions > li:first-child{padding-top:0}
+  .questions > li:last-child{padding-bottom:0}
+  .pairs > div{grid-template-columns:minmax(0,1fr); gap:var(--space-4); padding-block:var(--space-12)}
+  .pairs > div:first-child{padding-top:0}
+  .grid3-head, .cols-head{display:none}
+  .grid3-row{grid-template-columns:minmax(0,1fr); gap:var(--space-12); padding-block:var(--space-16)}
+  .g3-label{position:static; width:auto; height:auto; overflow:visible; clip-path:none; display:block; margin-bottom:var(--space-2);
+            font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+  html:lang(zh) .g3-label{font-family:var(--font-stack); font-size:var(--font-small); line-height:var(--lh-small); letter-spacing:.08em}
+}
+@media print{
+  .entries a::after, .more::after{display:none}
+  .points > li, .entries > li, .pairs > div, .questions > li{break-inside:avoid}
+  /* 三栏表：整行设 break-inside:avoid 时 Chromium 会把整张表连同上面的标题推到下一页（Responsible AI 英文页多出两页半空白）。
+     改成每格不拆，表只在行与行之间分页；列头不单独留在页底（2026-09-30 由 Responsible AI 页提上来） */
+  .grid3-row > *{break-inside:avoid}
+  .grid3-head, .cols-head{break-after:avoid}
+  /* 打印默认不印背景：要点的方块点是背景，不加这句纸上就没了 */
+  .points > li::before{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+}
+
+/* ══════════ 断点 ══════════ */
+/* 笔记本（1024 到 1439）：栅格按 fr 自动收缩，只收窄固定列 */
+@media (max-width:1439px){
+  .hero-in{grid-template-columns:minmax(0,1fr) 520px}
+  .part{grid-template-columns:320px minmax(0,1fr)}
+  .dom-cols{padding-left:calc(260px + 380px + var(--space-40) * 2)}
+  .dom{grid-template-columns:260px 380px minmax(0,1fr)}
+}
+/* 1024 到 1279：五个链接加三语切换再加按钮放不下（英文实测 1037 宽），隐藏页眉按钮，导航里已有联络我们（拍板 15） */
+@media (min-width:1024px) and (max-width:1279px){
+  .nav .actions .btn{display:none}
+}
+@media (max-width:1023px){
+  /* Figma 768 与 390 画板各区块都是撑满、左右留 margin-x，没有版心上限；tokens 里的 704 与 350 只是画板宽度算出来的值。
+     照搬成上限会让 430 宽的手机两侧各空 40，所以这两档版心随屏宽 */
+  :root{--container-max:100%}
+  /* 页眉：字标在左，右侧 按钮、MENU；手机档按钮收进菜单。MENU 在最右，与菜单里的 CLOSE 同位 */
+  .nav-links, .actions .lang{display:none}
+  .nav-in{gap:var(--space-16)}
+  .actions{order:2}
+  .menu-btn{display:inline-flex; order:3}
+  .foot-cols{grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-40) var(--space-32)}   /* 平板四组排两行（2026-09-30） */
+  .fcol{gap:var(--space-12)}
+  .fcol h3{margin-bottom:var(--space-16)}
+  .hero-in{grid-template-columns:1fr; gap:var(--space-48)}
+  .chain > div{grid-template-columns:130px minmax(0,1fr)}
+  .chain .s{grid-column:2}
+  .facts > div{grid-template-columns:200px minmax(0,1fr)}
+  .people{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .portrait{flex:0 0 120px; width:120px; height:150px}
+  .part{grid-template-columns:1fr; gap:var(--space-24)}
+  .dom-cols{display:none}
+  .dom{grid-template-columns:1fr; gap:var(--space-12)}
+}
+@media (min-width:768px) and (max-width:1023px){
+  /* 联络三栏在平板一栏一行，栏名在左 200、字段在右（同 .part 的左右分段），行与行之间 40，大于栏内字段间距 16。
+     原为两列，第三栏独占一行、右半空着（2026-09-30 由 css/page-contact.css 提上来） */
+  .channels{grid-template-columns:minmax(0,1fr); gap:var(--space-40) 0}
+  .channel{display:grid; grid-template-columns:200px minmax(0,1fr); gap:var(--space-16) var(--space-32); align-items:start}
+  .channel dl{max-width:34em}
+}
+@media (min-width:768px) and (max-width:1023px){
+  /* 平板旁边已有描边的 Request a briefing，MENU 去掉框只留图标与字，按钮才站得出来；点击区仍是 50 高 */
+  .menu-btn, .menu-close{min-width:0; height:50px; padding:0 var(--space-8); margin-right:calc(-1 * var(--space-8));
+          gap:var(--space-12); background:none; border-color:transparent; font-size:var(--font-small)}
+  .menu-btn:hover, .menu-close:hover{border-color:transparent; background:var(--bg-soft)}
+  .menu-btn::after, .menu-close::after{inset:-1px}
+  .menu-btn .ic{width:16px; height:8px}
+  .menu-close .ic{width:12px; height:12px}
+}
+@media (max-width:767px){
+  .nav .actions{display:none}        /* 手机页眉只留字标与 MENU，Request a briefing 在菜单里 */
+  .nav .wordmark svg{width:80px}     /* 页眉与菜单顶行 80，96 显得太重 */
+  .foot .wordmark svg{width:96px}    /* 页脚照 Figma 390 */
+  .foot-cols, .people, .channels{grid-template-columns:1fr; gap:var(--space-32)}
+  .facts > div{grid-template-columns:1fr; gap:var(--space-4)}
+}
+/* 手机档细调（2026-09-24 按真机宽度 360 到 430 逐页核查）：区块留白收紧，两栏表改上下叠，按钮撑满，页脚两栏 */
+@media (max-width:1023px){
+  .chain > div{row-gap:var(--space-4)}   /* 说明换到第二行时贴着值，别隔 32 */
+  /* 平板与手机横屏也是触屏：页脚与法务兄弟页链接点击区 44；折成两行的链接上下各留 11.5，不会挤在一起 */
+  .fcol{gap:0}
+  .fcol a{display:flex; align-items:center; min-height:44px; padding-block:calc((44px - var(--lh-small)) / 2); text-wrap:balance}
+  .foot-lang a, .foot-lang .on{min-height:44px}
+  .siblings{row-gap:0}
+  .siblings a{min-height:44px}
+  .foot .wordmark{justify-self:start; min-height:44px; align-items:center}
+}
+@media (min-width:768px) and (max-width:1023px){
+  .menu-cta{max-width:704px}   /* 菜单主按钮最宽到 Figma 768 画板的版心，1023 宽时不拉成 959 */
+}
+@media (max-width:767px){
+  /* 节奏（2026-09-27 收紧）：每个区块上内距取 --section-y（64），下内距 0，区块交界只留一次；页脚上内距同样取 --section-y。
+     交界有色带或描边时，留白分到两侧：色带（Evidence、收尾块）内外各 48，法务各节 32 + 线 + 32。
+     组件内部间距降一档（48→32、40→32、32→24、24→16、16→12、12→8），组内一律近于组间；列表首项上内距、末项下内距归零。
+     页脚与法务兄弟页链接点击框 32（WCAG 2.2 AA 的 2.5.8 要求 24×24，另留 8），其余点击目标仍是 44。
+     原写「首屏标题离页眉 40，区块之间约 96，原先内页沿用桌面 96 与 80，两节之间空出近 200」，区块上下内距各取 48 到 64，
+     上一块的下内距叠上下一块的上内距，2026-09-27 撤（首屏标题离页眉 40 仍保留） */
+  .hero{padding-block:var(--space-40) 0}   /* 底部交给下一段的 section-y（原写下内距 48，2026-09-27 撤） */
+  .hero-in{gap:var(--space-24)}
+  .part{padding-block:var(--space-24); gap:var(--space-12)}
+  .part:last-child, .dom:last-child{padding-bottom:0}   /* 末项的内距别叠在区块留白上 */
+  .part:first-child{padding-top:0}                      /* 首项同理 */
+  .ct-channels{--pt:var(--space-40)}                    /* 三栏紧跟页首导语，没有自己的标题，离导语 40 */
+  .lg{--pt:var(--space-32); --pb:var(--space-32)}       /* 节与节之间有描边：32 + 线 + 32，合计仍是 64；末节下内距 0 见「末段到页脚」 */
+  .lg:first-child{--pt:var(--space-40)}
+  /* 首屏两个按钮上下叠、撑满，第二个的字不再缩进 */
+  .cta-row{flex-direction:column; align-items:stretch; gap:var(--space-4)}
+  .closing .btn{align-self:stretch}   /* 收尾按钮与首屏按钮一样撑满 */
+  /* Evidence 四条链接只占文字宽，链接盒只剩一行字高（26），44 点击区由本段末尾的伪元素撑出；z-index 让点击区盖过下一行说明。
+     左右各借 2（内距 2 配负外距 2，文字位置不动），焦点框左右离字 2。
+     原写上下内距 9 配负外距 9 把链接盒撑到 44，焦点框横穿上方标签的字脚与下方说明的字头，2026-09-27 撤 */
+  .chain a.v{justify-self:start; z-index:1; padding:0 var(--space-2); margin:0 calc(-1 * var(--space-2))}
+  /* 标签与值的两栏表在手机上改为标签在上、值在下，与 About 资料表一致；两栏时值列只剩 160 到 196 宽 */
+  .part-facts > div, .chain > div{grid-template-columns:1fr; gap:var(--space-2); align-items:start}
+  .chain .s{grid-column:auto}
+  /* 团队卡收紧，一屏能看到两张多 */
+  .people{gap:var(--space-12)}
+  .person{padding:var(--space-12)}
+  .portrait{flex:0 0 88px; width:88px; height:110px}
+  .person .txt{padding-top:var(--space-8)}
+  /* Contact 各组之间加分隔线，组与组分得开 */
+  .channels{gap:0}
+  .channel{padding-block:var(--space-24); border-top:1px solid var(--border-subtle)}
+  .channel:first-child{border-top:0; padding-top:0}
+  /* 法务：兄弟页链接点击框 32 高、两行之间 0（行距 32），元信息行用 12 的 mono。原写点击区 44，2026-09-27 撤。
+     左右各借 8 见基础档，最窄的「大學」补到 44；文字在 32 框内居中，框边到文字行框上下各 5.5 */
+  .siblings{gap:0 var(--space-16); padding-bottom:var(--space-24)}
+  .siblings a{min-height:var(--space-32)}
+  .lg .head-block .t-mono-s{font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono)}
+  /* 页脚两栏按行对齐（单栏时页脚有近两屏高）：字标单独一行（点击区 44），下面两个 .foot-cols 拆开，六组两两成行，
+     同一行两组的组标题顶端对齐；阅读与 Tab 顺序跟着 DOM 走，正好逐行从左到右。法定区单独占最后一行，上方 24 + 分隔线 + 24。
+     链接点击框 32，见本段末尾（原写 44，2026-09-27 撤） */
+  .foot{padding-block:var(--section-y) var(--space-32)}
+  .foot .wrap{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-24) var(--space-16); align-items:start}
+  .foot .wordmark, .foot .legal, .foot-lang{grid-column:1 / -1}
+  .foot-cols{display:contents}
+  .fcol h3{margin-bottom:var(--space-8)}   /* 组标题到第一条链接框 8，到链接文字看得见 13.5 */
+
+  /* 【2026-09-27 新增 · 区块节奏】 */
+  .hero-copy{gap:var(--space-16)}                                  /* 眉标、大标题、导语 24→16 */
+  .sec > .wrap{gap:var(--gap, var(--space-16))}                    /* 没有单独设 --gap 的区块，眉标、标题、导语 24→16（与 .head-block 同值） */
+  .evidence{--pt:var(--space-48); --pb:var(--space-48); --gap:var(--space-32); min-height:0}   /* 色带内 48；手机不撑满一屏（内容本身已高过一屏） */
+  .closing{padding-block:var(--space-48)}                          /* 色带内 64→48，与 Evidence 同 */
+
+  /* 【2026-09-27 新增 · 列表首末项不叠留白】 */
+  .rows:not(.all-lines) > :first-child{padding-top:0}
+  .rows > :last-child{padding-bottom:0}
+  .chain > div:first-child{padding-top:0}
+  .chain > div:last-child{padding-bottom:0}
+  .channel:last-child{padding-bottom:0}
+
+  /* 【2026-09-27 新增 · 组件内部降一档】 */
+  .cta-row .btn-ghost{padding-block:calc((44px - var(--lh-body)) / 2 - 1px)}   /* 第二个按钮没有描边，58 高只是点击区，降到 44 */
+  .chain > div{padding-block:var(--space-12)}
+  .facts > div{padding-block:var(--space-12)}
+  .part .title{gap:var(--space-8)}
+  .part .detail{gap:var(--space-16)}
+  .part-facts > div{padding-block:var(--space-8)}
+  .dom{padding-block:var(--space-16); gap:var(--space-8)}
+  .channel, .channel dl{gap:var(--space-12)}                       /* 组内 16→12；组间 24 + 线 + 24 不动，组才分得开 */
+  .prose + .prose{margin-top:var(--space-24)}                      /* 条款之间 32→24，条款内 8 */
+  .lg .head-block{padding-bottom:var(--space-24)}                  /* 页头到兄弟页导航 40→24 */
+
+  /* 【2026-09-27 新增 · 点击区与焦点框】 */
+  /* 现况链接：44 点击区见共用组件「值链接点击区」。焦点框外扩 0，上下贴着链接盒，离上方标签「Company」的 p、y 字脚 2.6（外扩 2 时只剩 0.6）。
+     法务正文行内链接的点击高与焦点框 2026-09-30 起各档一致，写在法务一节 */
+  .chain a.v:focus-visible{outline-offset:0}
+
+  /* 【2026-09-27 新增 · 页脚】 */
+  /* 链接点击框 32 高，链接之间 0（行距 32），上下内距 4：单行时靠 min-height 32 与上方 ≤1023 段的 flex 居中，文字在框正中；
+     折成两行的链接（Company information pack）框高随内容（42 + 8 = 50），上下各 4。
+     链接撑满栏宽（360 宽时约 152）。左右各借 4（内距 4 配负外距 4，文字位置不动）：焦点框左右都伸出栏边 8，与栏对称，
+     左缘离字由 2 放到 6；两栏的框各伸进栏间 8，正好在 16 的栏间中线相接 */
+  .fcol a{min-height:var(--space-32); padding-block:var(--space-4); align-self:stretch;
+          padding-inline:var(--space-4); margin-inline:calc(-1 * var(--space-4))}
+  .foot .legal{padding-top:var(--space-24)}
+  .foot-lang{column-gap:var(--space-16)}
+  .foot-lang h3{flex:1 0 100%; margin:0 0 var(--space-8)}   /* 组名单独一行，与其余四组的组名同一写法 */
+  .foot-lang a, .foot-lang .on{min-height:var(--space-32); padding-inline:var(--space-4); margin-inline:calc(-1 * var(--space-4))}
+  /* 法定身份四段用基础档的 16/26（C3：≥ 1rem）。原写手机档 14/21，2026-09-27 撤 */
+  .legal .zh{white-space:nowrap}                                   /* 中文公司名整名换行，别断在中间 */
+}
+/* 手机横屏（只限 1023 以下，矮的桌面窗口不受影响）：页眉降到 56，按钮收成 40 高，首屏标题离页眉 40；
+   首屏按钮与卡底栏恢复横排；菜单链接排两列，整张菜单不用滚 */
+@media (max-height:500px) and (orientation:landscape) and (max-width:1023px){
+  :root{--nav-h:56px}
+  .nav .actions .btn{height:40px; padding-block:0; padding-inline:calc(var(--space-16) - 1px); font-size:var(--font-small)}
+  .menu-btn, .menu-close{height:40px}
+  .menu-btn::after, .menu-close::after{inset:-3px -1px}
+  .hero{padding-top:var(--space-40)}
+  .page-head, .lg:first-child{--pt:var(--space-40)}
+  .cta-row{flex-direction:row; align-items:center}
+  .menu{gap:var(--space-16)}
+  .menu-links{display:grid; grid-template-columns:repeat(2, max-content); column-gap:var(--space-48)}
+  .menu-cta{width:auto; align-self:flex-start}
+}
+/* 占位值统一浅灰。放在最后并加一级选择器，压过各表格的值样式 */
+.site .placeholder{color:var(--text-subtle)}
+
+@media (prefers-reduced-motion:reduce){
+  .blob{transform:none !important}   /* 晕染静止一帧 */
+  .stamp{display:none}               /* 不放指针晕开 */
+}
+@media print{
+  /* 纸面落在哪一档取决于页边距从哪里来（2026-09-27 实测）：打印对话框设页边距时，Chromium 按扣掉页边距后的宽算（A4 加 16mm 为 673，落在手机档）；
+     只靠下方 @page 的 16mm 时按整张 A4 宽 794 算，落在平板档。打印时去掉版心上限与左右边距，由页边距当留白。
+     原写「纸面宽度落在手机档，版心会缩成 350 宽的一窄条」，2026-09-27 撤 */
+  @page{margin:16mm}
+  .wrap, .nav-in{max-width:none; padding-inline:0}
+  .nav{position:static; height:auto; border:0}
+  .nav-links, .actions, .menu-btn, .menu, .wash, .skip{display:none}
+  .wordmark .wm-part{transform:none !important; opacity:1 !important}   /* 纸面上一律印完整字标 */
+  .closing{background:none; border-top:1px solid var(--border-subtle); break-inside:avoid}   /* 标题与按钮不拆页 */
+  .closing .t-h2-bold{color:var(--text-primary)}
+  .menu:popover-open, .menu.is-open{display:none}   /* 菜单开着时打印也不印出来 */
+  html.menu-open{overflow:visible}
+  .btn-primary{background:none; color:var(--text-primary); border-color:currentColor}
+  body{background:#fff}
+  .evidence{background:#fff; min-height:0; display:block}
+  /* 首屏在纸面上是单栏网格，Chrome 会把整块推到第二页，第一页只剩字标；改成块级才能在两行之间分页 */
+  .hero-in{display:block}
+  .hero-in > * + *{margin-top:var(--space-48)}
+  /* 纸面上区块上下留白封顶 48，屏幕上的 96 会把整块卡片挤到下一页。
+     --pt、--pb 写 0 时一律带单位（0px）：不带单位的 0 放进 min() 与长度相比，整条声明失效，纸面上区块上下内距都变成 0（build.py 会拦） */
+  .sec{padding-block:min(var(--pt, var(--section-y)), var(--space-48)) min(var(--pb, var(--section-y)), var(--space-48))}
+  /* 标题不落在页底，卡片与表格行不拆页 */
+  h1, h2, h3, h4, .head-block, .part .title{break-after:avoid}
+  .head-block, .part .title, .legal, .dom, .chain > div, dl > div{break-inside:avoid}
+  .siblings{display:none}   /* 法务页的兄弟页链接与内页的页内跳转行在纸上没有用 */
+  .person{break-inside:avoid}
+  /* 页脚整块放得进一页（手机纸宽 673 量得 884 高；平板纸宽 794 四组排 2×2，更矮；A4 内容高约 1002），整块不拆；
+     万一放不下，退一步保证组、字标与法务块不被分页线拆开（Chromium 对网格行之间的 break-before:avoid 不生效，只作兜底）。
+     原先只写在手机档，纸宽落在平板档时页脚被拆开，语言行与法定区单独落到最后一页（2026-09-30 第 1 轮复核移到这里，各纸宽都生效） */
+  .foot .wrap{break-inside:avoid}
+  .foot .wordmark{break-after:avoid}
+  .fcol{break-inside:avoid}
+  .foot .legal{break-before:avoid}
+  /* 纸上没有手指：链接一律 32 高、上下内距 4（手机档的写法），上内距与区块同样封顶 48。平板纸宽原按触屏的 44 高排，
+     页脚连上内距约 1040 高，超过 A4 内容高，整块推到新的一页后仍被拆开；收紧后约 850（2026-09-30 第 1 轮复核实测） */
+  .foot{padding-top:var(--space-48)}
+  .fcol a, .foot-lang a, .foot-lang .on{min-height:var(--space-32); padding-block:var(--space-4)}
+}
+
+/* ══════════ 页面样式 · css/page-home.css ══════════ */
+/* 首页（templates/home.html）自己的样式。选择器一律带 .pg-home，构建时接在 site.css 后面。
+   区块节奏：桌面每块上内距 section-y（120）、下内距 0，交界只留一次；现况色带外侧各留 section-y。
+   手机照 8.29：上内距 section-y（64）、下内距 0，色带内外各 48，组件内部降一档。 */
+
+/* ── 首屏：单栏，标题栏放宽到 1000（三语页面架构 4.1），不放样例卡 ── */
+.pg-home .hero{padding-block:var(--space-96) 0}
+.pg-home .hero-in{grid-template-columns:minmax(0, 1000px)}
+.pg-home .hero-copy{gap:var(--space-24)}
+
+/* ── 各段节奏 ── */
+.pg-home :is(.manifesto, .products, .partners){--pb:0px}   /* 写 0px：不带单位的 0 会让 site.css 打印段的 min() 整条失效 */
+.pg-home .manifesto{--gap:var(--space-40)}
+.pg-home .products{--gap:var(--space-40)}
+.pg-home .partners{--gap:var(--space-40)}
+.pg-home .rai{--pb:var(--section-y); --gap:var(--space-32)}
+.pg-home .cta-row{padding-top:0}
+
+/* ── 两个产品：摘要卡两张并排，等高；现况与链接压在卡底，两张对得齐 ── */
+.pg-home .prod-cards{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:var(--space-24); align-items:stretch}
+.pg-home .prod-card{display:flex; flex-direction:column; gap:var(--space-24); padding:var(--space-32)}
+.pg-home .prod-card-head{display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-12)}
+.pg-home .prod-zh{font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-muted); margin-top:calc(-1 * var(--space-8))}
+.pg-home .flow-block{display:flex; flex-direction:column; gap:var(--space-12)}
+.pg-home .prod-ev{margin-top:auto; padding-top:var(--space-16); border-top:1px solid var(--border-subtle);
+                  font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-muted)}
+.pg-home .prod-card .more{margin-top:calc(-1 * var(--space-12))}
+/* 卡里的流程链用小号（正文 16）加粗到 600，与卡名 h3 分开层级；大号的 h3 字号留给整段只放一条链的地方。
+   间距 24：中文五步在 1440 一行排完，英文与手机折行，折行处的箭头由 .flow 裁掉。手机也横排，竖排五步会把卡拉得太长 */
+.pg-home .prod-card .flow{--flow-gap:var(--space-24)}
+.pg-home .prod-card .flow > li{font-weight:600; padding:calc(var(--space-8) - 1px) calc(var(--space-12) - 1px)}
+
+/* ── 收尾：olive 色带，标题与导语在上，七个入口两栏反白，末行为收结句 ── */
+.pg-home .closing{padding-block:var(--space-96)}
+.pg-home .closing .wrap{gap:var(--space-48)}
+.pg-home .closing-head{display:flex; flex-direction:column; gap:var(--space-24); max-width:900px}
+.pg-home .closing-lead{font:400 var(--font-body-l)/var(--lh-body-l) var(--font-stack); color:var(--text-on-brand-solid); max-width:40em}
+.pg-home .closing .entries{align-self:stretch}
+.pg-home .closing-end{font:600 var(--font-h4)/1.45 var(--font-stack); color:var(--text-on-brand-solid); max-width:40em}
+html:lang(zh) .pg-home :is(.closing-lead, .closing-end){line-height:var(--lh-cjk-body); letter-spacing:0}
+
+@media (max-width:1023px){
+  .pg-home .hero{padding-top:var(--space-80)}
+  .pg-home .prod-cards{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:767px){
+  .pg-home .hero{padding-block:var(--space-40) 0}
+  .pg-home .hero-copy{gap:var(--space-16)}
+  /* 英文首屏标题手机档用 h1 字号：display 40 在 350 宽要折七行，主按钮会掉出首屏（三语页面架构 5.1） */
+  html:lang(en) .pg-home .hero .t-display{font-size:var(--font-h1); line-height:var(--lh-h1)}
+  .pg-home :is(.manifesto, .products, .partners){--gap:var(--space-32)}
+  .pg-home .rai{--pb:var(--space-48); --gap:var(--space-24)}   /* 下接现况色带，色带外留 48 */
+  .pg-home .prod-cards{gap:var(--space-16)}
+  .pg-home .prod-card{padding:var(--space-16); gap:var(--space-16)}
+  .pg-home .prod-card-head{gap:var(--space-8)}
+  .pg-home .prod-zh{margin-top:calc(-1 * var(--space-4))}
+  .pg-home .flow-block{gap:var(--space-8)}
+  .pg-home .prod-ev{padding-top:var(--space-12)}
+  .pg-home .prod-card .more{margin-top:calc(-1 * var(--space-8))}
+  .pg-home .closing{padding-block:var(--space-48)}
+  .pg-home .closing .wrap{gap:var(--space-32)}
+  .pg-home .closing-head{gap:var(--space-16)}
+  .pg-home .closing-end{font-size:var(--font-body-l)}
+}
+@media print{
+  .pg-home .closing-lead, .pg-home .closing-end, .pg-home .closing .entry-label{color:var(--text-primary)}
+  /* 产品卡整张不拆页：繁简首页 A4 打印时 School Agent OS 卡的状态章曾独自留在上一页页底，读来像属于上一项（第 2 轮复核） */
+  .pg-home .prod-card{break-inside:avoid}
+}
+
+/* ══════════ 页面样式 · css/page-what-we-do.css ══════════ */
+/* 我們做甚麼（templates/what-we-do.html）自己的样式。选择器一律带 .pg-what-we-do，只有本页用的组件 class 以 wwd- 开头。
+   区块节奏照 8.29：桌面每块上内距 section-y（120）、下内距 0，交界只留一次；手机上内距 section-y（64）、下内距 0，组件内部降一档。
+   胆量：全页半自由档，卡片圆角 8，品牌字体只在标题层；状态章素；全页零动效。 */
+
+/* ── 各段节奏：标题区与内容组之间 40，组内 16 ── */
+/* 下内距写 0px：不带单位的 0 会让 site.css 打印段的 min() 整条失效。末段（科学设计）到页脚由 site.css「末段到页脚」补 */
+.pg-what-we-do :is(.wwd-compare, .wwd-tasks, .wwd-method, .wwd-core, .wwd-passport, .wwd-science){--pb:0px; --gap:var(--space-40)}
+.pg-what-we-do .wwd-group{display:flex; flex-direction:column; gap:var(--space-16)}
+.pg-what-we-do .wwd-drive{gap:var(--space-24)}
+.pg-what-we-do .wwd-close{gap:var(--space-24)}
+.pg-what-we-do .wwd-chip-row{display:flex}
+
+/* ══ 两产品对照表 ══
+   桌面：左栏行名 180，右两栏等宽。三列各是一个子网格（subgrid）跨七行：列头、五行内容、列末链接，同一行三格高度一致。
+   列与列之间不留 gap，间距写成格子的左内距，行线才能连成整行 */
+.pg-what-we-do .wwd-cmp{display:grid; grid-template-columns:180px repeat(2, minmax(0,1fr)); grid-template-rows:repeat(7, auto)}
+.pg-what-we-do :is(.wwd-cmp-rowheads, .wwd-cmp-col){display:grid; grid-row:span 7; grid-template-rows:subgrid; min-width:0}
+.pg-what-we-do .wwd-cmp-col dl{display:contents}
+.pg-what-we-do .wwd-cmp-col > *, .pg-what-we-do .wwd-cmp-col dl > div{padding-left:var(--space-32)}
+/* 行：上边线，列头下的第一行用 strong 线把列头与内容分开 */
+.pg-what-we-do .wwd-cmp-rowheads > span, .pg-what-we-do .wwd-cmp-col dl > div{padding-block:var(--space-16); border-top:1px solid var(--border-subtle)}
+.pg-what-we-do .wwd-cmp-rowheads > span:nth-child(2), .pg-what-we-do .wwd-cmp-col dl > div:first-child{border-top-color:var(--border-strong)}
+.pg-what-we-do .wwd-cmp-rowheads > .wwd-cmp-corner:first-child{border-top:0; padding:0}
+.pg-what-we-do .wwd-cmp-rowheads > .wwd-cmp-corner:last-child{padding:0}
+/* 行名：英文等宽 14，中文正文字族 14；行高取正文行高，单行行名与右边内容的第一行对齐 */
+.pg-what-we-do .wwd-cmp-rowheads > span{padding-right:var(--space-24);
+  font:500 var(--font-small)/var(--lh-body) var(--font-stack-mono); color:var(--text-muted)}
+html:lang(zh) .pg-what-we-do .wwd-cmp-rowheads > span{font-family:var(--font-stack); font-weight:400; letter-spacing:.08em; line-height:var(--lh-cjk-body)}
+/* 列头：状态章、产品名、中文名（英文页没有中文名那一行） */
+.pg-what-we-do .wwd-cmp-head{display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-12); padding-bottom:var(--space-24)}
+.pg-what-we-do .wwd-zh{font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-muted); margin-top:calc(-1 * var(--space-8))}
+/* 格子：行名在列里的 <dt> 桌面只给读屏（左栏已有），平板与手机显示在内容上方 */
+.pg-what-we-do .wwd-cmp-col dl > div{display:flex; flex-direction:column; gap:var(--space-4); min-width:0}
+.pg-what-we-do .wwd-cmp-col dt{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap}
+.pg-what-we-do .wwd-cmp-col dd{font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-body); max-width:34em}
+html:lang(zh) .pg-what-we-do .wwd-cmp-col dd{line-height:var(--lh-cjk-body)}
+.pg-what-we-do .wwd-cmp-path{display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-8)}
+.pg-what-we-do .wwd-cmp .flow{--flow-gap:var(--space-24)}
+/* 列末链接：表的收尾线在这一行上沿。链接折成两行时箭头跟在最后一个词后面，写法在 site.css 的 .more（2026-09-30 由本页提上去） */
+.pg-what-we-do .wwd-cmp-foot{padding-top:var(--space-12); border-top:1px solid var(--border-subtle)}
+.pg-what-we-do .wwd-cmp-rowheads > .wwd-cmp-corner:last-child{border-top:1px solid var(--border-subtle)}
+
+/* ══ 真实任务 ══ */
+/* 四个投入来源用大号流程链，桌面降到 h4 字号：h3 的 28 在 1440 也排不下英文四项，版面过重 */
+.pg-what-we-do .wwd-drive .flow-lg > li{font-size:var(--font-h4); line-height:var(--lh-h4)}
+
+/* ══ TOIVO Pathways 的方法：沿用 .part，三部分都带上边线，末项不叠区块留白 ══ */
+.pg-what-we-do .wwd-parts{display:flex; flex-direction:column}
+.pg-what-we-do .wwd-parts > .part{padding-block:var(--space-40); border-top:1px solid var(--border-subtle)}
+.pg-what-we-do .wwd-parts > .part:last-child{padding-bottom:0}
+/* 五步卡：半自由档，圆角 8。步名在左，说明与留下的成果在右 */
+.pg-what-we-do .wwd-steps{background:var(--bg-canvas); border:1px solid var(--border-subtle); border-radius:var(--radius-card)}
+.pg-what-we-do .wwd-steps > li{display:grid; grid-template-columns:minmax(0,150px) minmax(0,1fr); gap:var(--space-4) var(--space-24);
+  padding:var(--space-16) var(--space-24); border-top:1px solid var(--border-subtle)}
+.pg-what-we-do .wwd-steps > li:first-child{border-top:0}
+.pg-what-we-do .wwd-step-name{display:flex; align-items:baseline; gap:var(--space-12);
+  font:600 var(--font-body-l)/var(--lh-body-l) var(--font-stack); letter-spacing:-.01em; color:var(--text-primary)}
+.pg-what-we-do .wwd-step-body{display:flex; flex-direction:column; gap:var(--space-8); min-width:0}
+.pg-what-we-do .wwd-step-desc{font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-body)}
+.pg-what-we-do .wwd-artifact{display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--space-4) var(--space-12)}
+.pg-what-we-do .wwd-artifact dt{font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+.pg-what-we-do .wwd-artifact dd{font:500 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-primary)}
+html:lang(zh) .pg-what-we-do .wwd-step-name{letter-spacing:0}
+html:lang(zh) .pg-what-we-do .wwd-step-desc{line-height:var(--lh-cjk-body)}
+html:lang(zh) .pg-what-we-do .wwd-artifact dt{font-family:var(--font-stack); font-size:var(--font-small); line-height:var(--lh-small); font-weight:400; letter-spacing:.08em}
+
+/* ══ 四个能力范畴：沿用 .dom，首行也带上边线（接在列头下）══ */
+/* 每行「成果形式」小标签：桌面只给读屏（列头已有），平板与手机显示 */
+.pg-what-we-do .wwd-shows-label{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap}
+html:lang(zh) .pg-what-we-do .dom :is(.t-body, .shows){line-height:var(--lh-cjk-body)}
+
+/* ══ 科学设计：两栏原则表加一行列头（site.css 的 .cols-head .pairs-head，列宽与 .pairs 一致） ══ */
+.pg-what-we-do .wwd-table{gap:var(--space-24)}
+.pg-what-we-do .pairs-head + .pairs{margin-top:calc(-1 * var(--space-24))}   /* 列头贴着表身，组内的 24 只留给表题 */
+
+@media (max-width:1439px){
+  .pg-what-we-do .wwd-cmp{grid-template-columns:160px repeat(2, minmax(0,1fr))}   /* 1024 宽时版心只有 896，行名栏让出 20 给两个产品 */
+  .pg-what-we-do .wwd-steps > li{grid-template-columns:minmax(0,120px) minmax(0,1fr)}
+}
+
+/* ── 平板：对照表去掉左栏行名，两列并排，行名写在各格内容上方；行仍按子网格对齐 ── */
+@media (max-width:1023px){
+  .pg-what-we-do .wwd-cmp{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .pg-what-we-do .wwd-cmp-rowheads{display:none}
+  .pg-what-we-do .wwd-cmp-col > *, .pg-what-we-do .wwd-cmp-col dl > div{padding-left:0; padding-right:var(--space-16)}
+  .pg-what-we-do .wwd-cmp-col + .wwd-cmp-col > *, .pg-what-we-do .wwd-cmp-col + .wwd-cmp-col dl > div{padding-left:var(--space-16); padding-right:0}
+  .pg-what-we-do .wwd-cmp-col dt{position:static; width:auto; height:auto; overflow:visible; clip-path:none; white-space:normal;
+    font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+  html:lang(zh) .pg-what-we-do .wwd-cmp-col dt{font-family:var(--font-stack); font-size:var(--font-small); line-height:var(--lh-small); font-weight:400; letter-spacing:.08em}
+  .pg-what-we-do .wwd-shows-label{position:static; width:auto; height:auto; overflow:visible; clip-path:none; white-space:normal; display:block;
+    margin-bottom:var(--space-2); font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+  html:lang(zh) .pg-what-we-do .wwd-shows-label{font-family:var(--font-stack); font-size:var(--font-small); line-height:var(--lh-small); font-weight:400; letter-spacing:.08em}
+}
+
+/* ── 手机：照 8.29 组件内部降一档；对照表改两张卡上下叠 ── */
+@media (max-width:767px){
+  .pg-what-we-do :is(.wwd-compare, .wwd-tasks, .wwd-method, .wwd-core, .wwd-passport, .wwd-science){--gap:var(--space-32)}
+  .pg-what-we-do .wwd-group{gap:var(--space-12)}
+  .pg-what-we-do :is(.wwd-drive, .wwd-close, .wwd-table){gap:var(--space-16)}
+
+  /* 对照表：两张卡，卡内列头在上，行名贴着内容（4），行与行隔 12 + 线 + 12 */
+  .pg-what-we-do .wwd-cmp{display:flex; flex-direction:column; gap:var(--space-16)}
+  .pg-what-we-do .wwd-cmp-col{display:flex; flex-direction:column; padding:var(--space-16);
+    background:var(--bg-canvas); border:1px solid var(--border-subtle); border-radius:var(--radius-card)}
+  .pg-what-we-do .wwd-cmp-col > *, .pg-what-we-do .wwd-cmp-col dl > div,
+  .pg-what-we-do .wwd-cmp-col + .wwd-cmp-col > *, .pg-what-we-do .wwd-cmp-col + .wwd-cmp-col dl > div{padding-inline:0}
+  .pg-what-we-do .wwd-cmp-head{gap:var(--space-8); padding-bottom:var(--space-16)}
+  .pg-what-we-do .wwd-zh{margin-top:calc(-1 * var(--space-4))}
+  .pg-what-we-do .wwd-cmp-col dl > div{padding-block:var(--space-12)}
+  .pg-what-we-do .wwd-cmp-col dl > div:first-child{border-top-color:var(--border-subtle)}
+  .pg-what-we-do .wwd-cmp-foot{padding-top:var(--space-4)}
+  .pg-what-we-do .wwd-cmp .flow{--flow-gap:var(--space-24)}
+
+  /* 大号流程链竖排（site.css），字号再降到正文加大一档 */
+  .pg-what-we-do .wwd-drive .flow-lg > li{font-size:var(--font-body-l); line-height:var(--lh-body-l)}
+
+  /* 方法三部分：部分之间 24 + 线 + 24；五步卡四边 16，步名在上、说明在下 */
+  .pg-what-we-do .wwd-parts > .part{padding-block:var(--space-24)}
+  .pg-what-we-do .wwd-parts > .part:last-child{padding-bottom:0}
+  .pg-what-we-do .wwd-steps > li{grid-template-columns:minmax(0,1fr); gap:var(--space-4); padding:var(--space-12) var(--space-16)}
+  .pg-what-we-do .wwd-step-body{gap:var(--space-4)}
+
+  /* 科学设计：列头不出（site.css），原则名在上、要求在下（.pairs 手机档已处理） */
+  .pg-what-we-do .pairs-head + .pairs{margin-top:0}
+}
+
+/* 打印：对照表改成两个产品先后排（子网格跨页时 Chrome 会把下一段叠在表上），行名显示在内容上方；
+   表格行、五步卡的每一步、投入来源一整组不拆页。对照表整列不设 break-inside，否则页首连同整张表会被推到第二页 */
+@media print{
+  .pg-what-we-do .wwd-cmp, .pg-what-we-do .wwd-cmp-col{display:block}
+  .pg-what-we-do .wwd-cmp-rowheads{display:none}
+  .pg-what-we-do .wwd-cmp-col + .wwd-cmp-col{margin-top:var(--space-32)}
+  .pg-what-we-do .wwd-cmp-col > *, .pg-what-we-do .wwd-cmp-col dl > div,
+  .pg-what-we-do .wwd-cmp-col + .wwd-cmp-col > *, .pg-what-we-do .wwd-cmp-col + .wwd-cmp-col dl > div{padding-inline:0}
+  .pg-what-we-do .wwd-cmp-col dt{position:static; width:auto; height:auto; overflow:visible; clip-path:none; white-space:normal;
+    font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-muted)}
+  html:lang(zh) .pg-what-we-do .wwd-cmp-col dt{font-family:var(--font-stack); font-size:var(--font-small); line-height:var(--lh-small); font-weight:400; letter-spacing:.08em}
+  .pg-what-we-do .wwd-steps > li, .pg-what-we-do .wwd-cmp-col dl > div, .pg-what-we-do .wwd-cmp-head, .pg-what-we-do .dom,
+  .pg-what-we-do .wwd-drive{break-inside:avoid}
+}
+
+/* ══════════ 页面样式 · css/page-responsible-ai.css ══════════ */
+/* Responsible AI（templates/responsible-ai.html）自己的样式。选择器一律带 .pg-responsible-ai，构建时接在 site.css 后面。
+   全页素档（三语页面架构 2.3、4.2）：零动效、零圆角（状态章照旧 4px 加 1px 描边）、中性字体，正文与标签 7:1，可直接打印 A4，不折叠。
+   节奏照 8.29：桌面每块上内距 section-y（120）、下内距 0；手机上内距 section-y（64）、下内距 0，页首离页眉 40，组件内部降一档。
+   两张表与七项承诺共用一条纵轴：第一栏取 .grid3 的 1 : 1.4 : 1.4 分法，正文从第二栏起排，桌面三块左右对齐。 */
+
+/* ── 素档 7:1：标签、列头、编号与元信息的 text/subtle 换成 text/muted（做法同 site.css 的 .ct-head 一组） ── */
+.pg-responsible-ai main{--text-subtle:var(--text-muted)}
+
+/* ── 各段节奏 ── */
+/* 下内距一律带单位写 0px：site.css 打印段用 min(var(--pb), 48px) 封顶，没有单位的 0 与长度混在 min() 里整条失效。
+   末段（资料与权限）到页脚由 site.css「末段到页脚」补，特异度高于这一条 */
+.pg-responsible-ai .ra-head{--gap:var(--space-32)}
+.pg-responsible-ai :is(.ra-principles, .ra-commitments, .ra-platform, .ra-data){--pb:0px; --gap:var(--space-40)}
+.pg-responsible-ai .ra-group{display:flex; flex-direction:column; gap:var(--space-16)}
+.pg-responsible-ai .ra-lead-group{gap:var(--space-24)}   /* 两条设计规则接着导语那一句，比到下面表格近 */
+
+/* ── 页首：标语用大字导语（.statement），导语在下；跳转行沿用法务兄弟页链接（点击框在 site.css 的 .siblings） ── */
+.pg-responsible-ai .ra-jump{padding-bottom:0}
+
+/* ── 要点列表：素档不用品牌色方块，改成与标签同色的中性灰（末行不落单个词由 site.css 管） ── */
+.pg-responsible-ai .points > li::before{background:var(--text-subtle); border-radius:0}
+
+/* ── 七项承诺：<ol> 计数画编号，左栏编号与标题，右栏正文（跨第二、三栏） ── */
+.pg-responsible-ai .ra-commits{counter-reset:ra-commit}
+.pg-responsible-ai .ra-commit{counter-increment:ra-commit; display:grid;
+     grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) minmax(0,1.4fr); gap:var(--space-8) var(--space-32);
+     padding-block:var(--space-32); border-top:1px solid var(--border-subtle)}
+.pg-responsible-ai .ra-commit:first-child{border-top:0; padding-top:0}
+.pg-responsible-ai .ra-commit:last-child{padding-bottom:0}
+.pg-responsible-ai .ra-commit-head{display:flex; align-items:baseline; gap:var(--space-12)}
+/* 编号只给看：列表语义已报序号，第二条写法（替代文字为空）让支持的浏览器读屏不念，不支持的退回第一条 */
+.pg-responsible-ai .ra-commit-head::before{content:counter(ra-commit, decimal-leading-zero);
+     content:counter(ra-commit, decimal-leading-zero) / "";
+     flex:none; font:500 var(--font-small)/var(--lh-small) var(--font-stack-mono); color:var(--text-subtle)}
+.pg-responsible-ai .ra-commit-body{grid-column:2 / -1; display:flex; flex-direction:column; gap:var(--space-16)}
+/* 承诺 3 的示例：引句在上，引文左侧细线加浅底，零圆角 */
+.pg-responsible-ai .ra-example{display:flex; flex-direction:column; gap:var(--space-8)}
+.pg-responsible-ai .ra-quote{max-width:34em; padding:var(--space-12) var(--space-16); background:var(--bg-soft);
+     border-left:2px solid var(--border-strong);
+     font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-body)}
+/* 承诺 7 的要点：跟正文同字号，不压过承诺正文 */
+.pg-responsible-ai .ra-values{display:flex; flex-direction:column; gap:var(--space-8)}
+.pg-responsible-ai .ra-values .points{max-width:34em}
+.pg-responsible-ai .ra-values .points > li{padding-block:var(--space-8); font-size:var(--font-body); line-height:var(--lh-body)}
+.pg-responsible-ai .ra-values .points > li::before{top:calc(var(--space-8) + .5lh - 4px)}
+html:lang(zh) .pg-responsible-ai :is(.ra-quote, .ra-values .points > li){line-height:var(--lh-cjk-body)}
+html:lang(zh) .pg-responsible-ai :is(.ra-quote, .ra-values .points){max-width:32em}
+
+/* ── 两张表：状态章或表头标签在表上，段末一句链到法务页 ── */
+.pg-responsible-ai .ra-table{display:flex; flex-direction:column; gap:var(--space-16)}
+.pg-responsible-ai .ra-chip{align-self:flex-start}
+.pg-responsible-ai .ra-note{font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-muted); max-width:40em}
+html:lang(zh) .pg-responsible-ai .ra-note{line-height:var(--lh-cjk-small)}
+/* 句中链接按 WCAG 2.5.8 行内豁免；上下内距 4 把点击高补到 24 以上，行内内距不占行高，版面不动（做法同 .prose a） */
+.pg-responsible-ai .ra-note a{color:var(--text-primary); text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px;
+     padding:var(--space-4) var(--space-2); margin-inline:calc(-1 * var(--space-2))}
+.pg-responsible-ai .ra-note a:hover{text-decoration-thickness:2px}
+.pg-responsible-ai .ra-note a:focus-visible{outline-offset:0}
+/* 技术原则表只有两栏：设计要求一格横跨第二、三栏，第一栏与资料表对齐。手机已叠成一栏，不跨 */
+@media (min-width:768px){
+  .pg-responsible-ai .ra-grid2 .grid3-head > :last-child, .pg-responsible-ai .ra-grid2 .g3-cell{grid-column:2 / -1}
+}
+/* 跨两栏后一行太长，行长与七项承诺的正文同为 34em（中文 32em），两块右缘对齐 */
+.pg-responsible-ai .ra-grid2 .g3-cell p{max-width:34em}
+html:lang(zh) .pg-responsible-ai .ra-grid2 .g3-cell p{max-width:32em}
+
+@media (max-width:1279px){
+  /* 1279 以下第一栏只剩约 219（1024 宽）到 170（平板），中文标题在词中间断行、末行只剩一个字（「使｜用量」），英文折两三行；
+     承诺改为标题在上、正文在下（第 1 轮复核由 1023 改为 1279） */
+  .pg-responsible-ai .ra-commit{grid-template-columns:minmax(0,1fr); gap:var(--space-12)}
+  .pg-responsible-ai .ra-commit-body{grid-column:auto}
+}
+@media (max-width:767px){
+  .pg-responsible-ai .ra-head{--gap:var(--space-24)}
+  .pg-responsible-ai :is(.ra-principles, .ra-commitments, .ra-platform, .ra-data){--gap:var(--space-32)}
+  .pg-responsible-ai .ra-group{gap:var(--space-12)}
+  .pg-responsible-ai .ra-lead-group{gap:var(--space-16)}
+  .pg-responsible-ai .ra-commit{padding-block:var(--space-24); gap:var(--space-8)}
+  .pg-responsible-ai .ra-commit:first-child{padding-top:0}
+  .pg-responsible-ai .ra-commit:last-child{padding-bottom:0}
+  .pg-responsible-ai .ra-commit-body{gap:var(--space-12)}
+  .pg-responsible-ai .ra-quote{padding:var(--space-8) var(--space-12)}
+  .pg-responsible-ai .ra-table{gap:var(--space-12)}
+  .pg-responsible-ai .grid3-head + .grid3-row{padding-top:0}   /* 手机不出列头，首行上内距归零 */
+}
+@media print{
+  /* 表格行按格不拆、列头不留在页底、要点方块点照印，都已提进 site.css（2026-09-30） */
+  .pg-responsible-ai .ra-commit{break-inside:avoid}
+  .pg-responsible-ai .ra-commit-head{break-after:avoid}
+  .pg-responsible-ai .ra-chip{break-after:avoid}
+  /* 打印默认不印背景：引文浅底是背景，不加这句纸上就没了 */
+  .pg-responsible-ai .ra-quote{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+}
+
+/* ══════════ 页面样式 · css/page-partners.css ══════════ */
+/* 合作伙伴（templates/partners.html）自己的样式。选择器一律带 .pg-partners，构建时接在 site.css 后面。
+   区块节奏：桌面每块上内距 section-y（120）、下内距 0，交界只留一次；末段到页脚由 site.css「末段到页脚」统一管。
+   段内分组（回报表、流程、主题、收句）之间 64，平板 48，手机 40；组内标题到内容 24，手机 16。组内一律近于组间，组间一律小于区块间。
+   手机照 8.29：上内距 section-y（64）、下内距 0，页首离页眉 40；组件内部降一档；列表首项上内距、末项下内距归零。 */
+
+/* ── 页首：跳转行沿用法务兄弟页 .siblings（三语页面架构 4.2），点击框在 site.css（2026-09-30 由本页等三页的写法合并） ── */
+.pg-partners .page-head{--gap:var(--space-32)}
+.pg-partners .pp-jump{padding-bottom:0; gap:0 var(--space-24)}
+
+/* ── 各段节奏 ── */
+.pg-partners .pp-aud{--pb:0px; --gap:var(--space-64)}
+/* 三个锚点（跳转行、页脚、首页入口都链到这里）：落点让眉标离页眉 64，手机 40（同页首离页眉），不把区块上内距 120 整段留在屏顶 */
+.pg-partners .pp-aud{scroll-margin-top:calc(var(--nav-h) + env(safe-area-inset-top, 0px) - var(--section-y) + var(--space-64))}
+.pg-partners .pp-group{display:flex; flex-direction:column; gap:var(--space-24)}
+.pg-partners .pp-close{display:flex; flex-direction:column; gap:var(--space-32)}
+.pg-partners .pp-lead-group{display:flex; flex-direction:column; gap:var(--space-24)}   /* 导语以冒号接六个问题，两者算一组 */
+.pg-partners .cta-row{padding-top:0}
+.pg-partners .pp-eyebrow-row{display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-8) var(--space-12)}
+
+/* ── 表格列头（回报表、流程共用）：site.css 的 .cols-head（回报表另加 .pairs-head）；aria-hidden，读屏靠 <dl> 的 dt 与每步自带的标签 ── */
+.pg-partners .pp-table > :last-child{border-bottom:1px solid var(--border-subtle)}  /* 表尾收一条细线，与题目表（.grid3 每行带底线）一致 */
+
+/* ── 竖排流程：七步一列，编号加一句（架构 4.2），不画箭头（架构 5.1）。
+   编号由 <ol> 计数器给出，只有数字，三语相同；读屏已从 <ol> 得知第几项，编号用替代文字 "" 不再念一遍。
+   右栏是这一步对应的五步名，样子同流程链节点（bg/soft 底、border/soft 描边），与首页和我們做甚麼页的方法图解呼应。
+   每步的「對應步驟」小标签写在 HTML 里：桌面只给读屏（列头已写），平板以下列头不出、标签贴着节点显示 ── */
+.pg-partners .pp-steps{counter-reset:pg-partners-step}
+/* 桌面：五步名一栏的左缘对齐下一组「可參與的主題」两栏要点的第二栏（版心一半加 24），文字栏宽 50% - 88，眼睛不用横跨整个版心 */
+.pg-partners .pp-steps > li,
+.pg-partners .pp-thead-steps{--pp-cols:48px calc(50% - 88px) minmax(0,1fr)}
+.pg-partners .pp-thead-steps{grid-template-columns:var(--pp-cols)}
+.pg-partners .pp-thead-steps > span{grid-column:3}
+.pg-partners .pp-steps > li{counter-increment:pg-partners-step; display:grid; grid-template-columns:var(--pp-cols);
+                            gap:var(--space-8) var(--space-32); align-items:baseline; padding-block:var(--space-16); border-top:1px solid var(--border-subtle)}
+.pg-partners .pp-steps > li:first-child{border-top:0}
+.pg-partners .pp-steps > li::before{content:counter(pg-partners-step, decimal-leading-zero);
+                                    content:counter(pg-partners-step, decimal-leading-zero) / "";
+                                    grid-column:1; grid-row:1; font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+.pg-partners .pp-step-text{grid-column:2; font:400 var(--font-body)/var(--lh-body) var(--font-stack); color:var(--text-body); max-width:40em}
+.pg-partners .pp-step-tag{grid-column:3; display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-4) var(--space-8)}
+.pg-partners .pp-tag{display:inline-flex; align-items:center; padding:calc(var(--space-2) - 1px) calc(var(--space-8) - 1px);
+                     border:1px solid var(--border-soft); border-radius:var(--radius-card); background:var(--bg-soft); color:var(--text-on-soft);
+                     font:500 var(--font-small)/var(--lh-small) var(--font-stack); white-space:nowrap}
+.pg-partners .pp-tag-k{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap}
+html:lang(zh) .pg-partners .pp-step-text{line-height:var(--lh-cjk-body)}
+html:lang(zh) .pg-partners .pp-tag{letter-spacing:0}
+
+/* ── 题目表：共享 .grid3 加第四栏「狀態」，五行各放一枚状态章。桌面四栏，状态栏定宽，列头与各行对得齐 ── */
+@media (min-width:1024px){
+  .pg-partners .pp-topics :is(.grid3-head, .grid3-row){grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1.25fr) 152px}
+}
+.pg-partners .pp-status{align-self:start}
+.pg-partners .pp-status .chip{margin-top:-1px}   /* 章高 28，对上题目首行 26 的字 */
+
+/* ── 平板：流程与回报表照桌面；题目表每行排成「题目、状态章」一行，下面「適合對象」「可見成果」两格并排，小标签显示 ── */
+@media (max-width:1023px){
+  .pg-partners .pp-aud{--gap:var(--space-48)}
+  .pg-partners .pp-steps > li,
+  .pg-partners .pp-thead-steps{--pp-cols:40px minmax(0,1fr) 136px; column-gap:var(--space-24)}   /* 平板文字栏放宽，五步名一栏定宽 */
+}
+@media (min-width:768px) and (max-width:1023px){
+  .pg-partners .pp-topics .grid3-head{display:none}
+  .pg-partners .pp-topics .grid3-row{grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-12) var(--space-24)}
+  .pg-partners .pp-topics .grid3-head + .grid3-row{padding-top:0}
+  .pg-partners .pp-topics .g3-title{grid-column:1; grid-row:1}
+  .pg-partners .pp-topics .pp-status{grid-column:2; grid-row:1; justify-self:end}
+  .pg-partners .pp-topics .g3-cell:not(.pp-status) .g3-label{position:static; width:auto; height:auto; overflow:visible; clip-path:none; display:block;
+          margin-bottom:var(--space-2); font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+  html:lang(zh) .pg-partners .pp-topics .g3-label{font-family:var(--font-stack); font-size:var(--font-small); line-height:var(--lh-small); letter-spacing:.08em}
+}
+
+/* ── 手机：流程两栏（编号、内容），五步名换到下一行并显示「對應步驟」；题目表全叠，状态章挪到题目下面，状态的小标签只给读屏 ── */
+@media (max-width:767px){
+  .pg-partners .page-head{--gap:var(--space-24)}
+  .pg-partners .pp-aud{--gap:var(--space-40); scroll-margin-top:calc(var(--nav-h) + env(safe-area-inset-top, 0px) - var(--section-y) + var(--space-40))}
+  .pg-partners .pp-group{gap:var(--space-16)}
+  .pg-partners .pp-close{gap:var(--space-24)}
+  .pg-partners .pp-lead-group{gap:var(--space-16)}
+  .pg-partners .pp-steps > li{--pp-cols:28px minmax(0,1fr); gap:var(--space-8) var(--space-12); padding-block:var(--space-12)}
+  .pg-partners .pp-steps > li:first-child{padding-top:0}
+  .pg-partners .pp-step-tag{grid-column:2}
+  .pg-partners .pp-tag-k{position:static; width:auto; height:auto; overflow:visible; clip-path:none;
+                         font:500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); color:var(--text-subtle)}
+  html:lang(zh) .pg-partners .pp-tag-k{font-family:var(--font-stack); font-size:var(--font-small); line-height:var(--lh-small); letter-spacing:.08em}
+  .pg-partners .pairs > div:last-child, .pg-partners .pp-steps > li:last-child{padding-bottom:var(--space-12)}   /* 表尾有细线，末行留 12 */
+  .pg-partners .pp-topics .grid3-head + .grid3-row{padding-top:0}
+  .pg-partners .pp-topics .g3-title{order:-2}
+  .pg-partners .pp-topics .pp-status{order:-1; margin-top:calc(-1 * var(--space-4))}   /* 章贴着题目（8），与下面两格仍隔 12 */
+  .pg-partners .pp-topics .pp-status .g3-label{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap}
+  .pg-partners .pp-status .chip{margin-top:0}
+}
+
+@media print{
+  /* 页内跳转行（.siblings）不印、列头不留在页底，都在 site.css */
+  .pg-partners .pp-steps > li{break-inside:avoid}
+  .pg-partners .pp-group > h3, .pg-partners .pp-intro{break-after:avoid}
+}
+
+/* ══════════ 页面样式 · css/page-about.css ══════════ */
+/* 關於我們（templates/about.html）自己的样式。选择器一律带 .pg-about，构建时接在 site.css 后面。
+   区块节奏照 8.29：桌面每块上内距 section-y（120）、下内距 0，交界只留一次；末段到页脚由 site.css「末段到页脚」统一管。
+   手机上内距 section-y（64）、下内距 0，页脚上内距同为 section-y；组件内部降一档。
+   site.css 旧 About 一节的 .ab-why、.ab-facts、.ab-team 留白（80、96）在这里一并改成上面的节奏。 */
+
+/* ── 各段节奏 ── */
+/* 下内距写 0px 不写 0：site.css 打印段用 min(var(--pb), 48px) 封顶，不带单位的 0 放进 min() 整条失效，上下内距都掉成 0。
+   末段（原型是团队区，正式版删掉团队区后是公司資料）由 site.css 的 main > .sec:last-child 补下内距，特异度高于这一条 */
+.pg-about :is(.ab-mission, .ab-who, .ab-why, .ab-facts, .ab-team){--pt:var(--section-y); --pb:0px}
+.pg-about .ab-mission{--gap:var(--space-64)}   /* 使命三组（标题与使命句、方向感与流程链、方向假设与五问）之间 64，组内 12 到 40 */
+.pg-about .ab-who{--gap:var(--space-48)}
+.pg-about .ab-why{--gap:var(--space-24)}
+.pg-about .ab-facts{--gap:var(--space-24)}   /* 只有眉标没有标题：眉标到表、表到核对日期都是 24 */
+.pg-about .ab-team{--gap:var(--space-32)}
+
+/* 一句引导语接一个列表或一条链，组内 24 */
+.pg-about .ab-group{display:flex; flex-direction:column; gap:var(--space-24)}
+
+/* ── 使命：标题块下接大字使命句，句子用品牌色与 h3 字号，是全页唯一的大字；字族仍是正文字体，品牌字体只在标题层 ── */
+.pg-about .ab-mission-head{display:flex; flex-direction:column; gap:var(--space-40)}
+.pg-about .ab-statement{display:flex; flex-direction:column; gap:var(--space-12)}
+.pg-about .ab-statement .statement{font:500 var(--font-h3)/1.4 var(--font-stack); letter-spacing:-.01em; color:var(--brand-solid); max-width:30em}
+html:lang(zh) .pg-about .ab-statement .statement{line-height:1.6; letter-spacing:0}
+
+/* 六节点流程链：桌面六格等宽排成一行（Clement 行 76 写成一行，补回箭头，不编号、不画成阶梯），英文节点在格内折成两行，六格等高。
+   箭头沿用 .flow 的画法：画在第二格起的左边，折到行首的那个落在链框外被裁掉 */
+.pg-about .ab-flow{display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); align-items:stretch}
+.pg-about .ab-flow > li{justify-content:center; text-align:center; min-height:52px; padding:calc(var(--space-12) - 1px);
+                        font:600 var(--font-body-l)/var(--lh-body-l) var(--font-stack); text-wrap:balance}   /* 英文折成两行时两行等长，不留一个词在第二行 */
+
+/* 五问：列表首项上内距、末项下内距归零，引导语到第一问只隔组内 24 */
+.pg-about .questions > li:first-child{padding-top:0}
+.pg-about .questions > li:last-child{padding-bottom:0}
+
+/* ── 為何做 TOIVO：标题下三段，段距 16 ── */
+.pg-about .ab-why-body{display:flex; flex-direction:column; gap:var(--space-16)}
+
+/* ── 团队（只在原型）：Mandy 还没有照片，空头像的剪影在 site.css（2026-09-30 由本页提上去） ── */
+html:lang(zh) .pg-about .person .name{letter-spacing:0; word-break:keep-all}   /* 折行只落在英文名与中文名之间，「高慕蓮博士」不拆开 */
+
+@media (max-width:1279px){
+  /* 1024 宽版心 896，六格每格只剩 122，英文长词放不下；1279 以下排成三格两行 */
+  .pg-about .ab-flow{grid-template-columns:repeat(3, minmax(0,1fr)); row-gap:var(--space-12)}   /* 两行之间 8 看着像一张表，放到 12 */
+}
+@media (max-width:767px){
+  .pg-about .ab-mission{--gap:var(--space-40)}
+  .pg-about .ab-mission-head{gap:var(--space-24)}
+  .pg-about .ab-statement{gap:var(--space-8)}
+  .pg-about .ab-who{--gap:var(--space-32)}
+  .pg-about .ab-why{--gap:var(--space-16)}
+  .pg-about .ab-team{--gap:var(--space-24)}
+  .pg-about .ab-group{gap:var(--space-16)}
+  .pg-about .ab-why-body{gap:var(--space-12)}
+  /* 流程链竖排：一步一行，箭头朝下，做法同 .flow-lg 的手机档 */
+  .pg-about .ab-flow{display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-24)}
+  .pg-about .ab-flow > li{min-height:0; justify-content:flex-start; text-align:left; padding:calc(var(--space-8) - 1px) calc(var(--space-12) - 1px);
+                          font-size:var(--font-body); line-height:var(--lh-body)}
+  .pg-about .ab-flow > li + li::before{top:-15px; left:var(--space-24); transform:rotate(135deg)}
+}
+@media print{
+  /* 引导语不拆开、不落在页底与它引出的链或列表分开；方向感一句连同流程链、使命句、团队卡不拆页；公司資料五行加核对日期整块印在同一页 */
+  .pg-about .ab-group > p{break-after:avoid}
+  .pg-about :is(.ab-group > p, .ab-group:has(.ab-flow), .ab-statement, .person, .ab-facts .wrap){break-inside:avoid}
+}
+
+/* ══════════ 页面样式 · css/page-contact.css ══════════ */
+/* 聯絡我們（templates/contact.html）自己的样式。选择器一律带 .pg-contact，构建时接在 site.css 后面。
+   全页素档（三语页面架构 2.3、开工准备第五节）：零圆角、零动效，正文与标签浅色 7:1，可直接打印 A4。
+   联系栏 .channels 与 .channel 沿用 site.css：桌面三栏、平板一栏一行、手机上下叠加分隔线；三栏离导语的距离也在 site.css（.ct-channels）。
+   这里另补素档 7:1、邮箱链接、链入栏的标记与打印。 */
+
+/* ── 素档 7:1：页首眉标由 text/subtle 换成 text/muted。site.css 的 7:1 那一组有 .ct-channels，没有共享页首 .page-head ── */
+.pg-contact .page-head{--text-subtle:var(--text-muted)}
+
+/* ── 邮箱：mailto 链接。字重 500、text/primary、1px 下划线，悬停加粗下划线并换 brand/solid（09-06 评审的邮箱写法）。
+   44 点击区用 site.css 的 .tap-area（伪元素上下撑出，不改版面）；不断行，免得在 toivo-ai 的连字号处折开 ── */
+.pg-contact .ct-mail{font-weight:500; color:var(--text-primary); white-space:nowrap;
+                     text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px}
+.pg-contact .ct-mail:hover{color:var(--brand-solid); text-decoration-thickness:2px}
+
+/* ── 桌面与平板：每栏顶上一条线，三栏读得出是三组；从别页链进来的那一栏（:target）线改 2px 品牌色，静态标记，不做动效 ── */
+/* 锚点落点离吸顶页眉再空 24：全站的 scroll-margin 正好等于页眉高，栏顶那条线会与页眉底线贴成一条双线 */
+.pg-contact .channel{scroll-margin-top:calc(var(--nav-h) + env(safe-area-inset-top, 0px) + var(--space-24))}
+@media (min-width:768px){
+  .pg-contact .channel{border-top:1px solid var(--border-strong); padding-top:var(--space-24)}
+  .pg-contact .channel:target{border-top:2px solid var(--brand-solid); padding-top:calc(var(--space-24) - 1px)}
+}
+
+/* ── 手机：沿用 site.css 的上下叠加分隔线（首栏无线）。链进来的那一栏同样把分隔线换成 2px 品牌色 ── */
+@media (max-width:767px){
+  .pg-contact .channel:not(:first-child):target{border-top:2px solid var(--brand-solid); padding-top:calc(var(--space-24) - 1px)}
+}
+
+/* ── 打印：纸面宽落在手机档或平板档（site.css 打印注释），两档一律排成桌面的三栏，页首加三栏在 A4 第一页放完，
+   评标方一页就能抄全。平板档的「栏名在左」是每栏两列的网格，Chromium 打印时不在这种栏之间分页，会把页首连同三栏整块推到第二页，
+   第一页只剩页眉字标，所以纸面上不用它。链进来的那一栏在纸上不作标记 ── */
+@media print{
+  .pg-contact .channels{grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 var(--space-32)}
+  .pg-contact .channel, .pg-contact .channel:first-child, .pg-contact .channel:last-child,
+  .pg-contact .channel:target, .pg-contact .channel:not(:first-child):target{
+    display:flex; flex-direction:column; gap:var(--space-12); padding:var(--space-16) 0 0;
+    border-top:1px solid var(--border-strong); break-inside:avoid}
+  .pg-contact .channel dl{gap:var(--space-12); max-width:none}
+  .pg-contact .ct-mail{color:var(--text-primary)}
+}
+
+/* ══════════ 页面样式 · css/page-legal.css ══════════ */
+/* 法律資訊（templates/legal.html）自己的样式。选择器一律带 .pg-legal，构建时接在 site.css 后面。
+   法务页只出英文（拍板 8），版面沿用 09-29 正式版：六份文件各一节，节与节之间一条描边，素档（零圆角、零动效、7:1、可打印 A4）。
+   .lg、.siblings、.prose 与素档 7:1 的覆盖都在 site.css。兄弟页链接的 32×44 点击框与正文行内链接的 25 高点击区原写在本文件，
+   2026-09-30 第 1 轮复核提进 site.css（Responsible AI 与合作伙伴页首的跳转行共用同一写法），本页暂无自己的样式 */
+
+/* ══════════ 页面样式 · css/page-404.css ══════════ */
+/* 404（templates/404.html）自己的样式。选择器一律带 .pg-404。
+   末段到页脚的距离与返回首页链接的 44 点击区都用 site.css 的共用写法（「末段到页脚」「值链接点击区」），这里只排另两种语言的链接 */
+.pg-404 .other-langs{display:flex; flex-direction:column; gap:var(--space-8)}
+.pg-404 .other-langs ul{display:flex; flex-wrap:wrap; gap:0 var(--space-24)}
+.pg-404 .other-langs a{display:inline-flex; align-items:center; min-height:44px}

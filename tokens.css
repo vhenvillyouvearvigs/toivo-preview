@@ -1,0 +1,269 @@
+/* TOIVO 官网 design tokens · 由 Figma Variables 导出 2026-09-25 · 正本在 Figma，别手改这里（重导见 docs/tools/build_site_tokens.py） */
+:root{
+  /* 原色 */
+  --olive-050: #F5F3ED;
+  --olive-100: #E9ECDF;
+  --olive-200: #E7E5A4;
+  --olive-300: #D6D77B;
+  --olive-400: #C4CA5F;
+  --olive-500: #B2BD4C;
+  --olive-600: #9DA83F;
+  --olive-700: #7F8B2E;
+  --olive-800: #5F6C1F;
+  --olive-900: #3F5313;
+  --warm-grey-050: #FFFEFA;
+  --warm-grey-100: #E9ECDF;
+  --warm-grey-200: #D8DCCF;
+  --warm-grey-300: #B3B9A6;
+  --warm-grey-400: #9EA591;
+  --warm-grey-500: #7E8770;
+  --warm-grey-600: #626B57;
+  --warm-grey-700: #464F3B;
+  --warm-grey-800: #29321E;
+  --warm-grey-900: #1A2112;
+  --status-error: #911111;
+  --status-warning: #B44D12;
+  --status-info: #0E7C86;
+  --status-success: #42600C;
+  --status-error-dark: #F29090;
+  --status-warning-dark: #EF9461;
+  --status-info-dark: #15BCCB;
+  --status-success-dark: #80BB17;
+  --base-white: #FFFEFA;
+  /* 语义色 · Light */
+  --bg-canvas: var(--base-white);
+  --bg-surface: var(--olive-050);
+  --bg-inverse: var(--warm-grey-900);
+  --bg-brand: var(--olive-500);
+  --bg-soft: var(--olive-100);
+  --bg-muted: var(--warm-grey-100);
+  --bg-track: var(--warm-grey-200);
+  --text-primary: var(--warm-grey-900);
+  --text-body: var(--warm-grey-800);
+  --text-muted: var(--warm-grey-700);
+  --text-subtle: var(--warm-grey-600);
+  --text-on-brand: var(--warm-grey-900);
+  --text-on-brand-solid: var(--base-white);
+  --text-on-inverse: var(--warm-grey-100);
+  --border-hairline: var(--warm-grey-100);
+  --border-subtle: var(--warm-grey-200);
+  --border-strong: var(--warm-grey-300);
+  --text-on-soft: var(--olive-900);
+  --border-soft: var(--olive-200);
+  --brand-solid: var(--olive-900);
+  --brand-hover: var(--olive-800);
+  --focus-ring: var(--olive-900);
+  --state-error: var(--status-error);
+  --state-warning: var(--status-warning);
+  --state-info: var(--status-info);
+  --state-success: var(--status-success);
+  /* 布局 · Desktop */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-96: 96px;
+  --section-y: 120px;
+  --section-y-feature: 160px;
+  --nav-h: 98px;              /* 固定页眉高度。容器 padding-top 与锚点 scroll-margin-top 同取此值 */
+  --container-max: 1200px;
+  --margin-x: 120px;
+  --gutter: 24px;
+  --radius-chip: 4px;
+  --radius-card: 8px;
+  --radius-cover: 24px;
+  --font-display: 72px;
+  --font-h1: 48px;
+  --font-h2: 36px;
+  --font-h3: 28px;
+  --font-h4: 22px;
+  --font-body-l: 18px;
+  --font-body: 16px;
+  --font-small: 14px;
+  --font-caption: 12px;
+  --lh-display: 76px;
+  --lh-h1: 50px;
+  --lh-h2: 43px;
+  --lh-h3: 34px;
+  --lh-h4: 27px;
+  --lh-body-l: 28px;
+  --lh-body: 26px;
+  --lh-small: 21px;
+  --lh-caption: 18px;
+  /* 动效 · 取自 参考/MOTION.md，Figma 变量不表达时长与缓动 */
+  --motion-fast-01: 70ms;
+  --motion-fast-02: 110ms;
+  --motion-moderate-01: 150ms;
+  --motion-moderate-02: 240ms;
+  --motion-slow-01: 400ms;
+  --motion-slow-02: 700ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0.38, 0.9);
+  --ease-entrance: cubic-bezier(0, 0, 0.38, 0.9);
+  --ease-exit: cubic-bezier(0.2, 0, 1, 0.9);
+  /* 字族 */
+  --font-family-latin: "Onest";
+  --font-family-hant: "Chiron Hei HK";
+  --font-family-mono: "IBM Plex Mono";
+  --font-family-display: "Gabarito";   /* Figma 无对应变量，取自 Display、H1、H2 文字样式 */
+  --font-stack: var(--font-family-latin), var(--font-family-hant), ui-sans-serif, system-ui, sans-serif;
+  --font-stack-mono: var(--font-family-mono), ui-monospace, monospace;
+  --font-stack-hant: var(--font-family-hant), var(--font-family-latin), ui-sans-serif, system-ui, sans-serif;
+  --font-stack-display: var(--font-family-display), var(--font-family-latin), var(--font-family-hant), ui-sans-serif, system-ui, sans-serif;
+}
+@media screen and (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg-canvas: var(--warm-grey-900);
+  --bg-surface: var(--warm-grey-800);
+  --bg-inverse: var(--olive-050);
+  --bg-brand: var(--olive-500);
+  --bg-soft: var(--warm-grey-900);
+  --bg-muted: var(--warm-grey-800);
+  --bg-track: var(--warm-grey-700);
+  --text-primary: var(--olive-050);
+  --text-body: var(--warm-grey-100);
+  --text-muted: var(--warm-grey-300);
+  --text-subtle: var(--warm-grey-300);
+  --text-on-brand: var(--warm-grey-900);
+  --text-on-brand-solid: var(--warm-grey-900);
+  --text-on-inverse: var(--warm-grey-800);
+  --border-hairline: var(--warm-grey-800);
+  --border-subtle: var(--warm-grey-700);
+  --border-strong: var(--warm-grey-600);
+  --text-on-soft: var(--olive-200);
+  --border-soft: var(--olive-700);
+  --brand-solid: var(--olive-500);
+  --brand-hover: var(--olive-400);
+  --focus-ring: var(--olive-400);
+  --state-error: var(--status-error-dark);
+  --state-warning: var(--status-warning-dark);
+  --state-info: var(--status-info-dark);
+  --state-success: var(--status-success-dark);
+} }
+:root[data-theme="dark"]{
+  --bg-canvas: var(--warm-grey-900);
+  --bg-surface: var(--warm-grey-800);
+  --bg-inverse: var(--olive-050);
+  --bg-brand: var(--olive-500);
+  --bg-soft: var(--warm-grey-900);
+  --bg-muted: var(--warm-grey-800);
+  --bg-track: var(--warm-grey-700);
+  --text-primary: var(--olive-050);
+  --text-body: var(--warm-grey-100);
+  --text-muted: var(--warm-grey-300);
+  --text-subtle: var(--warm-grey-300);
+  --text-on-brand: var(--warm-grey-900);
+  --text-on-brand-solid: var(--warm-grey-900);
+  --text-on-inverse: var(--warm-grey-800);
+  --border-hairline: var(--warm-grey-800);
+  --border-subtle: var(--warm-grey-700);
+  --border-strong: var(--warm-grey-600);
+  --text-on-soft: var(--olive-200);
+  --border-soft: var(--olive-700);
+  --brand-solid: var(--olive-500);
+  --brand-hover: var(--olive-400);
+  --focus-ring: var(--olive-400);
+  --state-error: var(--status-error-dark);
+  --state-warning: var(--status-warning-dark);
+  --state-info: var(--status-info-dark);
+  --state-success: var(--status-success-dark);
+}
+[data-theme="light"]:not(:root){
+  --bg-canvas: var(--base-white);
+  --bg-surface: var(--olive-050);
+  --bg-inverse: var(--warm-grey-900);
+  --bg-brand: var(--olive-500);
+  --bg-soft: var(--olive-100);
+  --bg-muted: var(--warm-grey-100);
+  --bg-track: var(--warm-grey-200);
+  --text-primary: var(--warm-grey-900);
+  --text-body: var(--warm-grey-800);
+  --text-muted: var(--warm-grey-700);
+  --text-subtle: var(--warm-grey-600);
+  --text-on-brand: var(--warm-grey-900);
+  --text-on-brand-solid: var(--base-white);
+  --text-on-inverse: var(--warm-grey-100);
+  --border-hairline: var(--warm-grey-100);
+  --border-subtle: var(--warm-grey-200);
+  --border-strong: var(--warm-grey-300);
+  --text-on-soft: var(--olive-900);
+  --border-soft: var(--olive-200);
+  --brand-solid: var(--olive-900);
+  --brand-hover: var(--olive-800);
+  --focus-ring: var(--olive-900);
+  --state-error: var(--status-error);
+  --state-warning: var(--status-warning);
+  --state-info: var(--status-info);
+  --state-success: var(--status-success);
+}
+/* Laptop · 1024 到 1439。1440 版式（容器 1200 加两侧 120）装不下时改用 §8.5 的 1280 栅格：边距 64、容器 1152，Figma 的 Home · 1280 画板即此档 */
+@media (max-width: 1439px){ :root{
+  --container-max: 1152px;
+  --margin-x: 64px;
+  --font-display: 56px;
+  --lh-display: 60px;
+} }
+@media (max-width: 1023px){ :root{
+  --section-y: 96px;
+  --section-y-feature: 120px;
+  --container-max: 704px;
+  --margin-x: 32px;
+  --gutter: 16px;
+  --font-display: 48px;
+  --font-h1: 40px;
+  --font-h2: 30px;
+  --font-h3: 24px;
+  --font-h4: 20px;
+  --lh-display: 52px;
+  --lh-h1: 42px;
+  --lh-h2: 36px;
+  --lh-h3: 29px;
+  --lh-h4: 24px;
+} }
+@media (max-width: 767px){ :root{
+  --section-y: 64px;
+  --section-y-feature: 80px;
+  --nav-h: 66px;
+  --container-max: 350px;
+  --margin-x: 20px;
+  --radius-cover: 16px;
+  --font-display: 40px;
+  --font-h1: 32px;
+  --font-h2: 26px;
+  --font-h3: 22px;
+  --font-h4: 18px;
+  --lh-display: 44px;
+  --lh-h1: 34px;
+  --lh-h2: 31px;
+  --lh-h3: 26px;
+  --lh-h4: 22px;
+} }
+/* 文字样式 · 与 Figma Text styles 同名 */
+.t-display-bold{ font: 700 var(--font-display)/var(--lh-display) var(--font-stack-display); letter-spacing: -0.02em; }
+.t-h1-bold{ font: 700 var(--font-h1)/var(--lh-h1) var(--font-stack-display); letter-spacing: -0.02em; }
+.t-h2-semibold{ font: 600 var(--font-h2)/var(--lh-h2) var(--font-stack-display); letter-spacing: -0.02em; }
+.t-h2-bold{ font: 700 var(--font-h2)/var(--lh-h2) var(--font-stack-display); letter-spacing: -0.02em; }
+.t-h3-semibold{ font: 600 var(--font-h3)/var(--lh-h3) var(--font-stack); letter-spacing: -0.02em; }
+.t-h4-semibold{ font: 600 var(--font-h4)/var(--lh-h4) var(--font-stack); letter-spacing: -0.02em; }
+.t-h4-bold{ font: 700 var(--font-h4)/var(--lh-h4) var(--font-stack); letter-spacing: -0.02em; }
+.t-body-l-regular{ font: 400 var(--font-body-l)/var(--lh-body-l) var(--font-stack); letter-spacing: 0.00em; }
+.t-body-l-medium{ font: 500 var(--font-body-l)/var(--lh-body-l) var(--font-stack); letter-spacing: 0.00em; }
+.t-body-l-semibold{ font: 600 var(--font-body-l)/var(--lh-body-l) var(--font-stack); letter-spacing: -0.01em; }
+.t-body-l-bold{ font: 700 var(--font-body-l)/var(--lh-body-l) var(--font-stack); letter-spacing: -0.02em; }
+.t-body-regular{ font: 400 var(--font-body)/var(--lh-body) var(--font-stack); letter-spacing: 0.00em; }
+.t-body-medium{ font: 500 var(--font-body)/var(--lh-body) var(--font-stack); letter-spacing: 0.00em; }
+.t-body-semibold{ font: 600 var(--font-body)/var(--lh-body) var(--font-stack); letter-spacing: 0.00em; }
+.t-small-regular{ font: 400 var(--font-small)/var(--lh-small) var(--font-stack); letter-spacing: 0.00em; }
+.t-small-medium{ font: 500 var(--font-small)/var(--lh-small) var(--font-stack); letter-spacing: 0.00em; }
+.t-small-semibold{ font: 600 var(--font-small)/var(--lh-small) var(--font-stack); letter-spacing: 0.00em; }
+.t-caption-regular{ font: 400 var(--font-caption)/var(--lh-caption) var(--font-stack); letter-spacing: 0.00em; }
+.t-mono-caption-medium{ font: 500 var(--font-caption)/var(--lh-caption) var(--font-stack-mono); letter-spacing: 0.00em; }
+.t-mono-small-medium{ font: 500 var(--font-small)/var(--lh-small) var(--font-stack-mono); letter-spacing: 0.00em; }
+.t-wordmark-bold{ font: 700 var(--font-body-l)/var(--lh-body-l) var(--font-stack); letter-spacing: 0.00em; }
+.t-small-regular-zh{ font: 400 var(--font-small)/var(--lh-small) var(--font-stack-hant); letter-spacing: 0.00em; }
+.t-caption-regular-zh{ font: 400 var(--font-caption)/var(--lh-caption) var(--font-stack-hant); letter-spacing: 0.00em; }

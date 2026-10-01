@@ -1088,8 +1088,12 @@ html:lang(zh) :is(.c-kv--facts, .c-kv--who, .c-channel__fields) .c-field__v{line
   align-items:start; border-top:1px solid var(--c-hairline)}
 :is(.c-kv--part, .c-kv--facts) > .c-field + .c-field{border-top:1px solid var(--c-hairline)}
 /* 入口行 · kind="links"（排版方案 G5）：没有标签的入口清单，单栏，每行上边线 hairline（行线照分工行 214:263），
-   链接照证据链的值（51:12）Body/Medium、text/primary、下划线；链接盒至少 44 高，整行就是点击区的高度，三档相同 */
-.c-kv--links{margin:0; padding:0; list-style:none}
+   链接照证据链的值（51:12）Body/Medium、text/primary、下划线；链接盒至少 44 高，整行就是点击区的高度，三档相同。
+   整张表最宽收在正文最宽（10-01 复核：行线原先拉满版心，1440 长 1200、768 长 704，链接只占左边一小段，像页面自造的清单），
+   与区块导语用同一组变量 --c-measure、--c-measure-zh；表是 Body 16，em 按 16 算，英文 544、中文 512（导语 Body L 18 为 612、576），
+   版心窄于这个宽度时（390）照旧撑满 */
+.c-kv--links{margin:0; padding:0; list-style:none; max-width:var(--c-measure)}
+html:lang(zh) .c-kv--links{max-width:var(--c-measure-zh)}
 .c-link-row{display:flex; align-items:center; border-top:1px solid var(--c-hairline)}
 .c-link-row__a{display:inline-flex; align-items:center; min-height:44px; color:var(--text-primary)}
 @media (max-width:1023px){

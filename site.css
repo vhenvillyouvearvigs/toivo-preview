@@ -853,6 +853,10 @@ html:lang(zh) :is(.g3-title, .g3-cell p){line-height:var(--lh-cjk-body)}
   --c-layer-name: 240px;
   --c-layer-status: 200px;
   --c-layer-ev: 200px;
+  /* 2026-10-02 已批准 UI 评审：产品身份 280、当前证据 200；宣言标题栏 420。既有 token 保持原值。 */
+  --c-product-identity: 280px;
+  --c-product-evidence: 200px;
+  --l-split-intro: 420px;
   /* 命名阶梯行四栏（57:69）：编号 34、名称 268、说明 440、条件填满 */
   --c-num-num: 34px;
   --c-num-name: 268px;
@@ -1172,6 +1176,23 @@ html:lang(en) .c-layer-cols > span{text-transform:uppercase}
   html:lang(en) .c-layer__ev-label{text-transform:uppercase}
 }
 
+
+/* 2026-10-02 产品分组变体：保持原白卡、边框、字体，三组按关联排列。默认产品行仍照 Figma 五栏。 */
+.c-layer--grouped{grid-template-columns:var(--c-product-identity) minmax(0,1fr) var(--c-product-evidence); gap:var(--space-32)}
+.c-layer__identity{display:grid; grid-template-columns:var(--c-layer-num) minmax(0,1fr); gap:var(--space-16)}
+.c-layer__identity-body, .c-layer__detail{display:flex; flex-direction:column; gap:var(--space-8); min-width:0}
+.c-layer--grouped .c-layer__ev-label{display:block; position:static; width:auto; height:auto; margin:0 0 var(--space-4);
+  overflow:visible; clip-path:none; white-space:normal}
+.c-layer--grouped .c-layer__ev-label::after{content:none}
+@media (max-width:1023px){
+  .c-layer--grouped{grid-template-columns:minmax(0,1fr); gap:var(--space-16)}
+  .c-layer--grouped > :not(.c-layer__num){grid-column:1}
+}
+@media (max-width:767px){
+  .c-layer--grouped{gap:var(--space-12)}
+  .c-layer__identity{grid-template-columns:minmax(0,1fr); gap:var(--space-8)}
+}
+
 /* ══════════ 编号行 · Naming ladder 行 57:69（1440）、181:166（768）、183:166（390） ══════════ */
 .c-num-row{display:grid; grid-template-columns:var(--c-num-num) var(--c-num-name) var(--c-num-desc) var(--c-num-note); gap:var(--space-32);
   align-items:center; padding-block:var(--space-16)}
@@ -1408,6 +1429,13 @@ html:lang(zh) .c-person__name{word-break:keep-all; overflow-wrap:break-word}
   .c-siblings a{min-height:var(--space-32)}
 }
 
+/* 10-02 页内目录：复用同级导航结构，文字 16、持续下划线、点击区 44；法律同级导航照旧。 */
+.c-siblings--sections{gap:0 var(--space-24)}
+.c-siblings--sections a{font-size:var(--font-body); line-height:var(--lh-body); min-height:44px; margin-block:0;
+  color:var(--text-body); text-decoration:underline; text-underline-offset:var(--c-underline); text-decoration-thickness:1px}
+html:lang(zh) .c-siblings--sections a{line-height:var(--lh-cjk-body)}
+@media (max-width:767px){ .c-siblings--sections{column-gap:var(--space-16)} }
+
 /* ══════════ 版式 · 区块外框（P00：左右 margin-x、版心 container-max，上下内距各区块自带） ══════════ */
 .l-wrap{max-width:calc(var(--container-max) + var(--margin-x) * 2); margin:0 auto; padding-inline:var(--margin-x)}
 .l-section{--pt:var(--section-y); --pb:var(--section-y); --gap:var(--space-24); padding-block:var(--pt) var(--pb)}
@@ -1436,6 +1464,13 @@ main > .l-section:last-child{--pb:var(--section-y)}
 /* 编号行表自带组名（眉标与第 4 栏栏头同一行，企業 Challenge 流程）时，组名到行同样 24；手机档编号行表内部间距降到 16，这里不降 */
 .l-group > .l-num-table--cols{gap:var(--space-24)}
 
+/* 10-02 宣言分栏：标题导语与七条编号行使用原组件；正文末的收句保留在原阅读顺序。 */
+.l-split{display:grid; grid-template-columns:var(--l-split-intro) minmax(0,1fr); gap:var(--space-64); align-items:start}
+.l-split__intro, .l-split__body{display:flex; flex-direction:column; gap:var(--space-32); min-width:0}
+@media (max-width:1279px){ .l-split{grid-template-columns:minmax(0,1fr); gap:var(--space-40)} }
+@media (max-width:767px){ .l-split{gap:var(--space-24)} .l-split__body{gap:var(--space-24)} }
+@media print{ .l-split{display:block} .l-split__body{margin-top:var(--space-24)} }
+
 /* ══════════ 版式 · 首屏两栏配样例卡（P01，Home 3:13） ══════════ */
 .l-hero{padding-block:var(--space-96) var(--space-80)}
 .l-hero__in{display:grid; grid-template-columns:minmax(0,var(--l-hero-copy)) var(--l-hero-card); gap:var(--space-80);
@@ -1450,7 +1485,12 @@ html:lang(en) .l-hero--en-h1 .l-hero__title{font-size:var(--font-h1); line-heigh
 html:lang(zh) .l-hero__lead{max-width:var(--c-measure-zh)}
 .l-hero__cta{display:flex; flex-wrap:wrap; gap:var(--space-12); padding-top:var(--space-8)}
 @media (max-width:1439px){ .l-hero__in{grid-template-columns:minmax(0,1fr) var(--l-hero-card)} }
-@media (max-width:1023px){ .l-hero__in{grid-template-columns:minmax(0,1fr); gap:var(--space-48)} }
+/* 2026-10-02 UI 评审：固定卡宽挤压 1024 至 1279 的标题，提前改成单栏；1280 起沿用两栏。 */
+@media (max-width:1279px){
+  .l-hero__in{grid-template-columns:minmax(0,1fr); gap:var(--space-48)}
+  .l-hero__copy{max-width:var(--c-brief-w)}
+  .l-hero__in > .c-card{width:100%; max-width:var(--c-brief-w)}
+}
 @media (max-width:767px){
   .l-hero{padding-block:var(--space-40) 0}
   .l-hero__in{gap:var(--space-24)}

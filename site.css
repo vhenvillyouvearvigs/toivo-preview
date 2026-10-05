@@ -907,7 +907,6 @@ html:lang(zh) :is(.g3-title, .g3-cell p){line-height:var(--lh-cjk-body)}
   --c-portrait-w: 140px;
   --c-portrait-h: 175px;
   --c-person-gap-role: 5px;
-  --c-person-gap-city: 3px;
   /* 下划线离字：链接 3，去框按钮悬停 4（旧代码，Figma 没画悬停） */
   --c-underline: 3px;
   --c-underline-btn: 4px;
@@ -1205,13 +1204,15 @@ html:lang(en) .c-layer-cols > span{text-transform:uppercase}
 
 /* 2026-10-02 产品分组变体：保持原白卡、边框、字体，三组按关联排列。默认产品行仍照 Figma 五栏。 */
 .c-layer--grouped{grid-template-columns:var(--c-product-identity) minmax(0,1fr) var(--c-product-evidence); gap:var(--space-32)}
+/* 2026-10-05 首页产品概览只保留身份与说明，原状态及证据变体供其他页面使用。 */
+.c-layer--grouped.c-layer--overview{grid-template-columns:var(--c-product-identity) minmax(0,1fr)}
 .c-layer__identity{display:grid; grid-template-columns:var(--c-layer-num) minmax(0,1fr); gap:var(--space-16)}
 .c-layer__identity-body, .c-layer__detail{display:flex; flex-direction:column; gap:var(--space-8); min-width:0}
 .c-layer--grouped .c-layer__ev-label{display:block; position:static; width:auto; height:auto; margin:0 0 var(--space-4);
   overflow:visible; clip-path:none; white-space:normal}
 .c-layer--grouped .c-layer__ev-label::after{content:none}
 @media (max-width:1023px){
-  .c-layer--grouped{grid-template-columns:minmax(0,1fr); gap:var(--space-16)}
+  .c-layer--grouped, .c-layer--grouped.c-layer--overview{grid-template-columns:minmax(0,1fr); gap:var(--space-16)}
   .c-layer--grouped > :not(.c-layer__num){grid-column:1}
 }
 @media (max-width:767px){
@@ -1378,16 +1379,11 @@ html:lang(zh) .c-stage__label{font-size:inherit; line-height:inherit}
 .c-person__portrait{position:relative; flex:0 0 var(--c-portrait-w); width:var(--c-portrait-w); height:var(--c-portrait-h);
   border-radius:var(--radius-card); overflow:hidden; background:var(--bg-muted)}
 .c-person__portrait img{width:100%; height:100%; object-fit:cover; display:block}
-/* 还没有照片：不带字的剪影（头与肩两个椭圆）。Figma 占位写的是英文 PORTRAIT，中文页会冒出英文，沿用现行 site.css 的剪影 */
-.c-person__portrait.is-empty::after{content:""; position:absolute; inset:0;
-  background:radial-gradient(ellipse 16% 12.8% at 50% 40%, var(--border-strong) 98%, transparent 100%),
-             radial-gradient(ellipse 38% 30% at 50% 100%, var(--border-strong) 98%, transparent 100%)}
 .c-person__txt{display:flex; flex-direction:column; flex:1; min-width:0; padding-top:var(--space-16)}
 .c-person__name{color:var(--text-primary)}
 /* 中文页姓名是「英文名 中文名」：中文名不在字间折开，只在空格处折行（旧页面同一写法） */
 html:lang(zh) .c-person__name{word-break:keep-all; overflow-wrap:break-word}
 .c-person__role{margin-top:var(--c-person-gap-role); color:var(--text-muted)}
-.c-person__city{margin-top:var(--c-person-gap-city); color:var(--text-muted)}
 @media (max-width:767px){
   .c-person{padding:var(--space-12)}
   .c-person__txt{padding-top:var(--space-8)}

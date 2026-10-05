@@ -11,7 +11,7 @@
     var sizeWash = function(){
       /* 先归零再量：晕染是 .site 里的绝对定位块，不归零的话 scrollHeight 会把它自己算进去，每切一次页就长一轮 */
       wash.style.height = '0px';
-      /* 晕染铺到带 data-wash-end 的区块上沿（2026-09-30 起为首页现况色带，三语页面架构 2.4），旧写法认 #evidence。
+      /* 晕染铺到带 data-wash-end 的区块上沿（2026-10-05 现况色带撤下，改为首页收尾入口），旧写法认 #evidence。
          找不到或量出 0 时退回整页高度 */
       var ev = document.querySelector('[data-wash-end]') || document.getElementById('evidence');
       span = (ev && ev.offsetTop > 0) ? ev.offsetTop : Math.max(1200, site.scrollHeight);

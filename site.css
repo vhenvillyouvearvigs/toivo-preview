@@ -971,10 +971,10 @@ html:lang(zh) :is(.g3-title, .g3-cell p){line-height:var(--lh-cjk-body)}
 .c-t-mono-s{font:500 var(--font-small)/var(--lh-small) var(--font-stack-mono)}
 .c-t-zh-small{font:400 var(--font-small)/var(--lh-small) var(--font-stack-hant)}
 .c-t-zh-caption{font:400 var(--font-caption)/var(--lh-caption) var(--font-stack-hant)}
-/* 中文：标题字距归零、行高 1.3、只在标点与 <wbr> 处折行；正文行高 1.75，小字 1.7；display 取英文的 0.75 倍，平板以上不小于 h1
+/* 中文：标题字距归零、行高 1.3、优先在标点与 <wbr> 处折行，容器不足时允许断行；正文行高 1.75，小字 1.7；display 取英文的 0.75 倍，平板以上不小于 h1
    （与 site.css「语言」一节同一套变量） */
 html:lang(zh) :is(.c-t-display, .c-t-h1, .c-t-h2, .c-t-h2-bold, .c-t-h3, .c-t-h4){
-  letter-spacing:0; line-height:var(--lh-cjk-heading); word-break:keep-all; overflow-wrap:break-word}
+  letter-spacing:0; line-height:var(--lh-cjk-heading); word-break:keep-all; overflow-wrap:anywhere}
 html:lang(zh) .c-t-display{font-size:calc(var(--font-display) * var(--cjk-display-scale))}
 @media (min-width:768px){ html:lang(zh) .c-t-display{font-size:max(calc(var(--font-display) * var(--cjk-display-scale)), var(--font-h1))} }
 html:lang(zh) .c-t-body-l-sb{letter-spacing:0}
@@ -1056,9 +1056,10 @@ html:lang(zh) .c-para{max-width:var(--c-measure-zh)}
   padding-block:calc((44px - var(--lh-body)) / 2); margin-block:calc((var(--lh-body) - 44px) / 2)}
 
 /* ══════════ 区块标题组 · head 57:3（眉标、H2/SemiBold、Body L 导语 612） ══════════ */
-.c-head{display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-16)}
+.c-head{display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-16); min-width:0}
 .c-head--loose{gap:var(--space-24)}
-.c-head__title{color:var(--text-primary); max-width:var(--c-title-max)}
+/* 2026-10-05 手机实机反馈：长标题须按父栏宽度折行，避免内容宽度撑开后被页面裁切。 */
+.c-head__title{color:var(--text-primary); width:100%; max-width:var(--c-title-max)}
 .c-head__lead{color:var(--text-muted); max-width:var(--c-measure)}
 html:lang(zh) .c-head__lead{max-width:var(--c-measure-zh)}
 @media (max-width:767px){ .c-head--loose{gap:var(--space-16)} }
@@ -1348,9 +1349,9 @@ html:lang(en) .c-dom-cols > span{text-transform:uppercase}
 .c-stage{display:flex; flex-direction:column; min-width:0; background:var(--bg-canvas); border:1px solid var(--border-subtle);
   border-radius:var(--radius-card); padding:var(--space-16)}
 .c-stage__head{display:flex; flex-direction:column; align-items:flex-start; min-width:0}
-.c-stage__name{margin-top:var(--space-8); color:var(--text-primary)}
-/* 中文阶段名只在标点、空格与 <wbr> 处折行（排版方案 G17），与中文标题同一写法 */
-html:lang(zh) .c-stage__name{word-break:keep-all; overflow-wrap:break-word}
+.c-stage__name{margin-top:var(--space-8); color:var(--text-primary); width:100%; overflow-wrap:anywhere}
+/* 中文阶段名优先在标点、空格与 <wbr> 处折行（排版方案 G17），窄卡片不足时允许断行。 */
+html:lang(zh) .c-stage__name{word-break:keep-all; overflow-wrap:anywhere}
 .c-stage__zh{color:var(--text-subtle)}
 /* 状态章（排版方案 G6）：阶段名下一行，沿用 x-chip。章永远一行（10-01 第 2 轮复核）：原先卡窄时章里的字折成两行，
    成了两行字的厚底色块，同一排有的卡章一行、有的两行，卡头高低不齐。卡放不下一整枚章时，由「卡片网格」一节把带章的阶段卡网格改少几列 */

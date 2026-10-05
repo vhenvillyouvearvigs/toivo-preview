@@ -243,6 +243,32 @@ html.menu-open{overflow:hidden}
 .site{position:relative; overflow-x:clip}   /* 晕染左右各伸出 40px，在这里裁掉，页面不出横向滚动 */
 /* 晕染是定位元素、z-index:0，内容区块要自己抬到上层，否则会被盖住 */
 .site > main, .site > section, .site > footer{position:relative; z-index:1}
+
+/* 首页逐屏停靠（2026-10-05 Cindy 确认）：宽屏且窗口足够高时，每个区块至少撑满页眉下的一屏。
+   保留文档滚动与内容自然高度，超出一屏的区块仍可读到末尾。窄屏、矮窗口与减少动态效果时沿用自然滚动。
+   根滚动容器统一给页眉留位，区块不再重复计入原有锚点外距。菜单打开时暂停停靠。 */
+@media screen and (min-width:1280px) and (min-height:650px) and (prefers-reduced-motion:no-preference){
+  html:has(body.pg-home):not(.menu-open){
+    scroll-snap-type:y mandatory;
+    scroll-padding-top:calc(var(--nav-h) + env(safe-area-inset-top, 0px));
+  }
+  .pg-home .site > main > section{
+    min-height:calc(100svh - var(--nav-h) - env(safe-area-inset-top, 0px));
+    padding-block:var(--space-48);
+    display:flex;
+    align-items:center;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+  }
+  .pg-home .site > main > section[id], .pg-home .site > footer{
+    scroll-margin-top:0;
+    scroll-snap-align:start;
+  }
+  .pg-home .site > main > section > .l-wrap{width:100%}
+  .pg-home .site :where(a[href], button, summary, [tabindex]:not([tabindex="-1"])){
+    scroll-margin-top:var(--space-16);
+  }
+}
 .wash{position:absolute; left:-40px; right:-40px; top:0; height:var(--wash-h,2400px);
       z-index:0; pointer-events:none; overflow:hidden;
       -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 260px),transparent 100%);

@@ -1359,7 +1359,7 @@ html:lang(zh) .c-stage__name{word-break:keep-all; overflow-wrap:anywhere}
 .c-stage__chip{display:flex; margin-top:var(--space-8)}
 .c-stage .c-chip{white-space:nowrap}
 .c-stage__desc{flex:1; margin-top:var(--space-12); color:var(--text-muted)}
-/* 说明前的卡内小标签（label，如「主要對象」）：单独一行，跟着说明的字号；英文页为等宽小字 */
+/* 说明前的卡内小标签（label，如「主要對象」）：单独一行，中文为 Small，英文为等宽 Caption。 */
 .c-stage__label{display:block; margin-bottom:var(--space-4); color:var(--text-subtle)}
 .c-stage__out{margin-top:var(--space-12); padding-top:var(--space-12); border-top:1px solid var(--border-subtle); color:var(--text-muted)}
 @media (max-width:767px){

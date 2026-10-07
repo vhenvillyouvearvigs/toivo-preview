@@ -1097,11 +1097,11 @@ html:lang(zh) .c-card__lead{max-width:var(--c-measure-zh)}
 .c-field{display:grid; align-items:center}
 .c-field__k{color:var(--text-subtle)}
 .c-field__v{font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-body)}
-/* 资料、分工与联系渠道：标签 Mono/Small（联系渠道仍是 Mono/Caption），值 Body */
+/* 资料、分工、任务字段、产品事实与联系渠道的值用 Body；标签维持原字号（2026-10-07 字号评审）。 */
 :is(.c-kv--facts, .c-kv--who) .c-field__k{font-size:var(--font-small); line-height:var(--lh-small)}
-:is(.c-kv--facts, .c-kv--who, .c-channel__fields) .c-field__v{font-size:var(--font-body); line-height:var(--lh-body)}
+:is(.c-kv--facts, .c-kv--who, .c-kv--brief, .c-kv--part, .c-channel__fields) .c-field__v{font-size:var(--font-body); line-height:var(--lh-body)}
 html:lang(zh) .c-field__v{line-height:var(--lh-cjk-small)}
-html:lang(zh) :is(.c-kv--facts, .c-kv--who, .c-channel__fields) .c-field__v{line-height:var(--lh-cjk-body)}
+html:lang(zh) :is(.c-kv--facts, .c-kv--who, .c-kv--brief, .c-kv--part, .c-channel__fields) .c-field__v{line-height:var(--lh-cjk-body)}
 /* 样例卡字段：92 + 值，间距 16，上下 12；每行上边一条 hairline（卡里第一行也画，与导语分开） */
 .c-kv--brief > .c-field{grid-template-columns:var(--c-brief-key) minmax(0,1fr); gap:var(--space-16);
   padding-block:var(--space-12); border-top:1px solid var(--c-hairline)}
@@ -1330,8 +1330,9 @@ html:lang(en) .c-dom-cols > span{text-transform:uppercase}
   .c-dom{grid-template-columns:minmax(0,1fr); gap:var(--space-12)}
   /* 说明一栏最宽 544（Figma 768 的 184:454 里说明文字 FILL、maxWidth 544）；手机 350 宽不受影响 */
   .c-dom__desc{max-width:var(--c-kv-v)}
-  /* 窄屏栏名写在句前，用正文小字（Figma 184:631：Shows up as · …） */
-  .c-dom__shows-label{position:static; width:auto; height:auto; margin:0; overflow:visible; clip-path:none; white-space:normal; font:inherit}
+  /* 窄屏栏名写在句前，维持 Small；成果与权限正文升为 Body 后，标签字号不随之放大。 */
+  .c-dom__shows-label{position:static; width:auto; height:auto; margin:0; overflow:visible; clip-path:none; white-space:normal;
+    font:400 var(--font-small)/var(--lh-small) var(--font-stack)}
   .c-dom__shows-label::after{content:" · "}
   /* 第二栏栏名（G8）同一写法，跟着说明这一句的字（Body）；中文页不换成标签的 14/21 */
   .c-dom__desc-label, html:lang(zh) .c-dom__desc-label{position:static; width:auto; height:auto; margin:0; overflow:visible; clip-path:none;
@@ -1360,16 +1361,14 @@ html:lang(zh) .c-stage__name{word-break:keep-all; overflow-wrap:anywhere}
 .c-stage__desc{flex:1; margin-top:var(--space-12); color:var(--text-muted)}
 /* 说明前的卡内小标签（label，如「主要對象」）：单独一行，跟着说明的字号；英文页为等宽小字 */
 .c-stage__label{display:block; margin-bottom:var(--space-4); color:var(--text-subtle)}
-html:lang(zh) .c-stage__label{font-size:inherit; line-height:inherit}
 .c-stage__out{margin-top:var(--space-12); padding-top:var(--space-12); border-top:1px solid var(--border-subtle); color:var(--text-muted)}
 @media (max-width:767px){
-  /* 两列：用 subgrid 让同一行两张卡的分隔线对齐；说明与产出升到 14（Figma 184:669）。
+  /* 两列：用 subgrid 让同一行两张卡的分隔线对齐；说明与产出沿用 Body（2026-10-07 字号评审）。
      subgrid 只给带说明或产出的卡（排版方案 G14），按实际有几行跨几行：卡头、说明、产出三行，少一样少一行。
      只写编号与名称的卡按内容高，上下内距相同，不再跨空行（空行连同网格行距在卡底留下 30 至 43 的空白） */
   .l-grid > .c-stage:has(> .c-stage__desc, > .c-stage__out){display:grid; grid-row:span 2; grid-template-rows:subgrid; row-gap:0; align-content:start}
   .l-grid > .c-stage:has(> .c-stage__desc):has(> .c-stage__out){grid-row:span 3}
   .c-stage{padding:var(--space-12)}
-  .c-stage__desc, .c-stage__out{font-size:var(--font-small); line-height:var(--lh-small)}
   .c-stage__desc{margin-top:var(--space-8)}
   .c-stage__out{margin-top:var(--space-8); padding-top:var(--space-8)}
 }

@@ -1094,7 +1094,8 @@ html:lang(zh) .c-card__lead{max-width:var(--c-measure-zh)}
 /* <dl class="c-kv c-kv--种类"> 里放 x-field 出的 <div class="c-field"><dt>标签</dt><dd>值</dd></div>。
    标签是等宽小字（中文页换正文字族），值是正文；行与行之间细线，首行无线（分工行与样例卡每行都画） */
 .c-kv{display:flex; flex-direction:column}
-.c-field{display:grid; align-items:center}
+/* 2026-10-08：横排字段按首行文字基线配对，长值不把标签推到段落中部。手机堆叠仍在下方单独处理。 */
+.c-field{display:grid; align-items:baseline}
 .c-field__k{color:var(--text-subtle)}
 .c-field__v{font:400 var(--font-small)/var(--lh-small) var(--font-stack); color:var(--text-body)}
 /* 资料、分工、任务字段、产品事实与联系渠道的值用 Body；标签维持原字号（2026-10-07 字号评审）。 */
@@ -1113,9 +1114,9 @@ html:lang(zh) :is(.c-kv--facts, .c-kv--who, .c-kv--brief, .c-kv--part, .c-channe
 /* 公司资料：280 + 值 544，间距 32，上下 16；标签 Mono/Small/Medium text/muted（Figma 52:27） */
 .c-kv--facts > .c-field{grid-template-columns:var(--c-facts-k) minmax(0,var(--c-kv-v)); gap:var(--space-32); padding-block:var(--space-16)}
 .c-kv--facts .c-field__k{color:var(--text-muted)}
-/* 分工：380 + 值 544，间距 64，上下 24，顶端对齐；每行都画线（Figma 214:263） */
+/* 分工：380 + 值 544，间距 64，上下 24，首行基线对齐；每行都画线（原 Figma 214:263 为盒顶对齐，10-08 更新） */
 .c-kv--who > .c-field{grid-template-columns:var(--c-who-k) minmax(0,var(--c-kv-v)); gap:var(--space-64); padding-block:var(--space-24);
-  align-items:start; border-top:1px solid var(--c-hairline)}
+  align-items:baseline; border-top:1px solid var(--c-hairline)}
 :is(.c-kv--part, .c-kv--facts) > .c-field + .c-field{border-top:1px solid var(--c-hairline)}
 /* 入口行 · kind="links"（排版方案 G5）：没有标签的入口清单，单栏，每行上边线 hairline（行线照分工行 214:263），
    链接照证据链的值（51:12）Body/Medium、text/primary、下划线；链接盒至少 44 高，整行就是点击区的高度，三档相同。
@@ -1164,7 +1165,7 @@ html:lang(zh) .c-kv--links{max-width:var(--c-measure-zh)}
 .c-layer-cols > span{grid-column:5; color:var(--text-subtle)}
 /* 栏头与每行的栏名可以用同一个文案 key（句首大写）：英文页栏头照 Figma 382:1130 转大写（EVIDENCE） */
 html:lang(en) .c-layer-cols > span{text-transform:uppercase}
-.c-layer{align-items:start; background:var(--bg-canvas); border:1px solid var(--border-subtle); border-radius:var(--radius-card);
+.c-layer{align-items:baseline; background:var(--bg-canvas); border:1px solid var(--border-subtle); border-radius:var(--radius-card);
   padding:var(--space-24) var(--space-24) var(--space-16)}
 .c-layer__nm{display:flex; flex-direction:column; gap:var(--space-2); min-width:0}
 .c-layer__name{color:var(--text-primary)}
@@ -1207,23 +1208,23 @@ html:lang(en) .c-layer-cols > span{text-transform:uppercase}
 .c-layer--grouped{grid-template-columns:var(--c-product-identity) minmax(0,1fr) var(--c-product-evidence); gap:var(--space-32)}
 /* 2026-10-05 首页产品概览只保留身份与说明，原状态及证据变体供其他页面使用。 */
 .c-layer--grouped.c-layer--overview{grid-template-columns:var(--c-product-identity) minmax(0,1fr)}
-.c-layer__identity{display:grid; grid-template-columns:var(--c-layer-num) minmax(0,1fr); gap:var(--space-16)}
+.c-layer__identity{display:grid; grid-template-columns:var(--c-layer-num) minmax(0,1fr); gap:var(--space-16); align-items:baseline}
 .c-layer__identity-body, .c-layer__detail{display:flex; flex-direction:column; gap:var(--space-8); min-width:0}
 .c-layer--grouped .c-layer__ev-label{display:block; position:static; width:auto; height:auto; margin:0 0 var(--space-4);
   overflow:visible; clip-path:none; white-space:normal}
 .c-layer--grouped .c-layer__ev-label::after{content:none}
 @media (max-width:1023px){
-  .c-layer--grouped, .c-layer--grouped.c-layer--overview{grid-template-columns:minmax(0,1fr); gap:var(--space-16)}
+  .c-layer--grouped, .c-layer--grouped.c-layer--overview{grid-template-columns:minmax(0,1fr); gap:var(--space-16); align-items:start}
   .c-layer--grouped > :not(.c-layer__num){grid-column:1}
 }
 @media (max-width:767px){
   .c-layer--grouped{gap:var(--space-12)}
-  .c-layer__identity{grid-template-columns:minmax(0,1fr); gap:var(--space-8)}
+  .c-layer__identity{grid-template-columns:minmax(0,1fr); gap:var(--space-8); align-items:start}
 }
 
 /* ══════════ 编号行 · Naming ladder 行 57:69（1440）、181:166（768）、183:166（390） ══════════ */
 .c-num-row{display:grid; grid-template-columns:var(--c-num-num) var(--c-num-name) var(--c-num-desc) var(--c-num-note); gap:var(--space-32);
-  align-items:center; padding-block:var(--space-16)}
+  align-items:baseline; padding-block:var(--space-16)}
 .c-num-row + .c-num-row{border-top:1px solid var(--c-hairline)}
 .c-num-row__name{color:var(--text-primary)}
 .c-num-row__desc{color:var(--text-body)}
@@ -1236,8 +1237,8 @@ html:lang(en) .c-layer-cols > span{text-transform:uppercase}
 .c-num-row--wide .c-num-row__name{grid-column:2 / 4}
 /* 编号行表的栏头（cols-label，G9）：只在第 4 栏上方写一次（读屏跳过，每行另带只给读屏的栏名 note-label），与编号行同一套四栏；
    表有眉标时眉标跨前三栏，与栏头同一行。英文页栏头转大写，与产品行、三栏行的栏头同一做法 */
-.c-num-cols{display:grid; grid-template-columns:var(--c-num-num) var(--c-num-name) var(--c-num-desc) var(--c-num-note); column-gap:var(--space-32); align-items:end}
-.c-num-cols > .c-eyebrow{grid-column:1 / 4}
+.c-num-cols{display:grid; grid-template-columns:var(--c-num-num) var(--c-num-name) var(--c-num-desc) var(--c-num-note); column-gap:var(--space-32); align-items:baseline}
+.c-num-cols > .c-table-title{grid-column:1 / 4}
 .c-num-cols__label{grid-column:4; color:var(--text-subtle)}
 html:lang(en) .c-num-cols__label{text-transform:uppercase}
 @media (min-width:1024px){
@@ -1256,9 +1257,8 @@ html:lang(en) .c-num-cols__label{text-transform:uppercase}
   .c-num-row__note-label::after{content:" · "}
 }
 @media (min-width:768px) and (max-width:1023px){
-  /* 平板照 Figma 181:161 至 181:181（横排、交叉轴 MIN）：编号与名称顶端对齐，同在行顶 +16。
-     桌面 57:69 与 1280 为居中，不动；手机见下一段，编号对齐名称第一行 */
-  .c-num-row{align-items:start}
+  /* 平板仍横排的编号与名称也按首行基线对齐，正文余栏在名称下面独立成行。 */
+  .c-num-row{align-items:baseline}
 }
 @media (max-width:767px){
   /* 手机照 Figma 183:166 编号框 26 高、字居中，编号对齐名称第一行（10-01 第 2 轮复核）：行顶端对齐，编号框高等于名称一行的行高
@@ -1275,7 +1275,7 @@ html:lang(en) .c-num-cols__label{text-transform:uppercase}
 /* ══════════ 证据链行 · Evidence chain 行 51:12（1440）、181:196（768）、183:196（390）（色带 bg/soft 上，线用 border/soft） ══════════ */
 .c-chain{display:flex; flex-direction:column}
 .c-chain-row{display:grid; grid-template-columns:var(--c-chain-k) var(--c-chain-v) minmax(0,1fr); gap:var(--space-32);
-  align-items:center; padding-block:var(--space-16)}
+  align-items:baseline; padding-block:var(--space-16)}
 .c-chain-row + .c-chain-row{border-top:1px solid var(--border-soft)}
 .c-chain-row__k{color:var(--text-subtle)}
 .c-chain-row__v{color:var(--text-primary); justify-self:start}
@@ -1293,9 +1293,8 @@ a.c-chain-row__v::after{content:""; position:absolute; left:0; right:0; top:50%;
   .c-chain-row:has(> .c-num){grid-template-columns:var(--c-num-num) minmax(0,1fr); column-gap:var(--space-24)}
 }
 @media (min-width:768px) and (max-width:1023px){
-  /* 平板照 Figma 181:192、181:204（横排、交叉轴 MIN）：键与值顶端对齐，同在行顶 +16。
-     桌面 51:12 与 1280 的 434:1384 为居中，不动；手机叠排，下面另有顶端对齐 */
-  .c-chain-row{align-items:start}
+  /* 平板键与值按首行基线对齐，说明在值下面；手机叠排另行处理。 */
+  .c-chain-row{align-items:baseline}
 }
 @media (max-width:767px){
   .c-chain-row, .c-chain-row:has(> .c-num){grid-template-columns:minmax(0,1fr); gap:var(--space-2); align-items:start; padding-block:var(--space-12)}
@@ -1318,7 +1317,7 @@ a.c-chain-row__v::after{content:""; position:absolute; left:0; right:0; top:50%;
    平板与手机句前的栏名照 184:455、184:631 原样显示（Shows up as · …）。与产品行 .c-layer-cols 同一做法 */
 html:lang(en) .c-dom-cols > span{text-transform:uppercase}
 .c-dom{display:grid; grid-template-columns:var(--c-dom-name) var(--c-dom-desc) minmax(0,1fr); gap:var(--space-40);
-  padding-block:var(--space-24); border-top:1px solid var(--border-subtle)}
+  align-items:baseline; padding-block:var(--space-24); border-top:1px solid var(--border-subtle)}
 .c-dom__nm{display:flex; flex-direction:column; gap:var(--space-4)}
 .c-dom__name{color:var(--text-primary)}
 .c-dom__zh{color:var(--text-subtle)}
@@ -1327,7 +1326,7 @@ html:lang(en) .c-dom-cols > span{text-transform:uppercase}
 .c-dom__shows-label{color:var(--text-subtle)}
 @media (max-width:1023px){
   .c-dom-cols{display:none}
-  .c-dom{grid-template-columns:minmax(0,1fr); gap:var(--space-12)}
+  .c-dom{grid-template-columns:minmax(0,1fr); gap:var(--space-12); align-items:start}
   /* 说明一栏最宽 544（Figma 768 的 184:454 里说明文字 FILL、maxWidth 544）；手机 350 宽不受影响 */
   .c-dom__desc{max-width:var(--c-kv-v)}
   /* 窄屏栏名写在句前，维持 Small；成果与权限正文升为 Body 后，标签字号不随之放大。 */
@@ -1482,6 +1481,8 @@ main > .l-section:last-child{--pb:var(--section-y)}
    区块外框的 gap 一律等距，分不开「组名到自己的表」与「组到组」，这里在 gap 之外补足差额（--l-group-y 减区块的 --gap） */
 .l-group{display:flex; flex-direction:column; gap:var(--space-24); min-width:0}
 .l-group__head{display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-8) var(--space-12)}
+/* 表题沿用 Body L/SemiBold，独立于辅助眉标和字段标签；间距继续用既有刻度。 */
+.c-table-title{color:var(--text-primary)}
 .l-wrap > .l-group:not(:first-child), .l-wrap > .l-group + *{margin-top:calc(var(--l-group-y) - var(--gap))}
 /* 编号行表自带组名（眉标与第 4 栏栏头同一行，企業 Challenge 流程）时，组名到行同样 24；手机档编号行表内部间距降到 16，这里不降 */
 .l-group > .l-num-table--cols{gap:var(--space-24)}

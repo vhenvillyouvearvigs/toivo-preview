@@ -1562,11 +1562,10 @@ html:lang(zh) .l-hero__lead{max-width:var(--c-measure-zh)}
 @media (max-width:767px){ .l-grid{gap:var(--space-12)} .l-grid--2, .l-grid--3{--l-cols:1} .l-grid--4, .l-grid--6{--l-cols:2} }
 /* 团队卡三列在 1024 至 1279 太挤（文字栏只剩约 80 至 170 宽，英文职衔一词一行），这一档排两列，与平板档同一排法 */
 @media (min-width:1024px) and (max-width:1279px){ .l-grid--3:has(> .c-person){--l-cols:2} }
-/* 带状态章的阶段卡（我們做甚麼整体架构四张，G6）：章不折行（见「阶段卡」），卡要放得下一整枚章（10-01 第 2 轮复核）。
-   1024 至 1279 四列时卡宽约 210，英文章「PLANNED · 2027 Q3 TO Q4」放不下，这一档最多两列；767 以下两列时卡宽约 170，排一栏。
-   1280 以上四列、768 至 1023 两列照旧 */
-@media (min-width:1024px) and (max-width:1279px){ .l-grid:has(> .c-stage .c-chip){--l-cols:2} }
-@media (max-width:767px){ .l-grid:has(> .c-stage .c-chip){--l-cols:1} }
+/* 四阶段架构卡保留原有阅读宽度：2026-10-08 撤去状态章后，响应式排列按阶段卡本身判断。
+   1024 至 1279 两列，767 以下一列，1280 以上四列、768 至 1023 两列。 */
+@media (min-width:1024px) and (max-width:1279px){ .l-grid--4:has(> .c-stage){--l-cols:2} }
+@media (max-width:767px){ .l-grid--4:has(> .c-stage){--l-cols:1} }
 /* 并排的样例卡（示例任务三张，排版方案 G18）：1280 起三栏；1279 以下一栏，卡宽照 Figma 768 样例卡 181:38（--c-brief-w，704），
    不再在 768 排成两栏、第三张独占一行，也不在 1024 挤成三张约 305 宽的窄卡 */
 @media (max-width:1279px){
